@@ -88,7 +88,16 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                 $responseObj['message'] = 'Invalid request';
             }
 
-            $responseObj['version'] = self::API_VERSION;
+            if(isset($_SERVER['REQUEST_SCHEME']) && isset($_SERVER['SERVER_NAME'])){
+                $storeUrl = $_SERVER['REQUEST_SCHEME'] ."://". $_SERVER['SERVER_NAME'];
+            } else{
+                $storeUrl = Mage::getBaseUrl();
+            }
+            $responseObj['store_url'] = $storeUrl;
+            $responseObj['installed'] = '1';
+            $responseObj['api_version'] = self::API_VERSION;
+            $responseObj['plugin_version'] = (string)Mage::getConfig()->getNode('modules/ChoiceAI_Personalisation/version');
+            $responseObj['magento_version'] = Mage::getVersion();
             $this->getResponse()
                 ->setBody(json_encode($responseObj))
                 ->setHttpResponseCode(200)
@@ -119,7 +128,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                 $order = Mage::getModel('sales/order')->load($orderId, 'increment_id');
 
                 $extras = $this->getRequest()->getParam('extras');
-                $debug = $this->getRequest()->getParam('debug', 'false') === 'true';
+                $debug = $this->getRequest()->getParam('mwdebug', 'false') === 'true';
                 if($extras && strlen($extras)) {
                     $extras = explode(',', $extras);
                     for($i = 0;$i < sizeof($extras);$i++) {
@@ -315,7 +324,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
             );
 
             $extras = $this->getRequest()->getParam('extras');
-            $debug = $this->getRequest()->getParam('debug', 'false') === 'true';
+            $debug = $this->getRequest()->getParam('mwdebug', 'false') === 'true';
 
             if($extras && strlen($extras)) {
                 $extras = explode(',', $extras);
