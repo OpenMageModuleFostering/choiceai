@@ -231,9 +231,13 @@ class ChoiceAI_Search_Model_Resource_Engine_ChoiceAIsearch extends ChoiceAI_Sear
         if(isset($_SERVER['HTTP_REFERER']))
             $getParamsToSend['r'] = $_SERVER['HTTP_REFERER'];
 
-        if(isset($_COOKIE['caicookie']))
+        if(isset($_COOKIE['caicookie'])) {
             $getParamsToSend['u'] = $_COOKIE['caicookie'];
-
+        }
+        else
+        {
+            $getParamsToSend['isnew'] = true;
+        }
 
         // Calls Client.php in lib
         $data = $this->client

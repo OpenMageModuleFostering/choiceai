@@ -619,6 +619,8 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
 
             if(!$updateStatus)
                 throw new Exception("Couldn't update");
+            else
+                Mage::app()->getCache()->save(null, "sysFacets", array("facets"));
 
             $this->getResponse()
                 ->setBody(json_encode(array("status"=>"ok", 'version' => self::API_VERSION)))
@@ -737,6 +739,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
 
             $model->save();
 
+            Mage::app()->getCache()->save(null, "sysFacets", array("facets"));
             Mage::app()->cleanCache(array(Mage_Core_Model_Translate::CACHE_TAG));
 
             $this->getResponse()

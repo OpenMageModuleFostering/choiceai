@@ -35,36 +35,10 @@ class ChoiceAI_Service
         if (is_null($sorts) || !isset($sorts) || !is_array($sorts) || !sizeof($sorts) > 0) {
             return '';
         }
-
         foreach ($sorts as $sortKey => $sortValue) {
-//            if($startFlag) {
-//                $sortString=$sortString.",";
-//            }
-//            $startFlag = true;
-//            if($sort_value == 1) {
-//                $sortString=$sortString.rawurlencode($sort_key." asc");
-//            } else {
-//                $sortString=$sortString.rawurlencode($sort_key." desc");
-//            }
-            switch ($sortKey) {
-                case $sortKey == "price_high_to_low":
-                    $sortString .= "&sortBy=price&sortOrder=desc";
-                    break;
-
-                case $sortKey == "price_low_to_high":
-                    $sortString .= "&sortBy=price&sortOrder=asc";
-                    break;
-
-                case $sortKey == "newest":
-                    $sortString .= "&rmodel=newest";
-                    break;
-
-                case $sortKey == "bestsellers":
-                    $sortString .= "&rmodel=bestsellers";
-                    break;
-            }
+            if($sortKey)
+              $sortString = "&caiSortBy=".$sortKey;
         }
-
         return $sortString;
     }
 
@@ -145,11 +119,14 @@ class ChoiceAI_Service
         $context = stream_context_create($opts);
         $response = file_get_contents($url, false, $context);
 
-        Mage::getSingleton('core/cookie')->set("api_url", $url);
-
         $choiceaiResponse = null;
         if (isset($response)) {
             $response = Mage::helper('core')->jsonDecode($response);
+            $uidData = $response['uid'];
+            if (isset($uidData)) {
+              $uid = explode( ',', $uidData );
+              Mage::register("caiuid",$uid[0],true);
+            }
 
             $data = $response['data'];
 
@@ -195,16 +172,6 @@ class ChoiceAI_Service
 
             $choiceaiResponse = new ChoiceAI_ResultSet($data);
 
-            // Not required, spellcheck will be done server-side automagically
-//            if($spellcheck) {
-//                $choiceaiResponse->setSpellCheckQuery($params['query']);
-//            }
-
-//            if((!is_null($choiceaiResponse) && !$spellcheck && $choiceaiResponse->getTotalHits()==0 && !is_null($spellSuggest=$choiceaiResponse->getSpellSuggestion())) ||
-//                (!$spellcheck && $choiceaiResponse->getSpellcheckFrequency()>20 && !is_null($spellSuggest=$choiceaiResponse->getSpellSuggestion()))){
-//                $params['query'] = $spellSuggest;
-//                return $this->search($params, $address, true);
-//            }
         }
 
         return $choiceaiResponse;
