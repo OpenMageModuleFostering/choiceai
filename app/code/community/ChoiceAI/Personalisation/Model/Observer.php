@@ -12,7 +12,65 @@ class ChoiceAI_Personalisation_Model_Observer {
     $store_url = Mage::getBaseUrl();
     $magento_version = Mage::getVersion();
 
-    file_get_contents("https://app.choice.ai/stats/magentoinstall?enabled=".$enabled."&api_key=".$api_key."&store_url=".$store_url."&magentoversion=".$magento_version);
+    $error_message = "";
+
+    try {
+
+      $roles = Mage::getModel('api/roles')->getCollection()->addFieldToFilter('role_name', 'ChoiceAI');
+
+      if ($roles && sizeof($roles) > 0) {
+
+        $api_role = $roles->getFirstItem();
+
+      } else {
+
+        $api_role = Mage::getModel('api/roles')
+          ->setName('ChoiceAI')
+          ->setPid("ChoiceAI")
+          ->setRoleType('G')
+          ->save();
+      }
+
+      Mage::getModel('api/rules')
+        ->setRoleId($api_role->getId())
+        ->setResources(array('all'))
+        ->saveRel();
+
+      $users = Mage::getModel('api/user')->getCollection()->addFieldToFilter('email', 'magento@choice.ai');
+      if ($users && sizeof($users) > 0) {
+
+        $api_user = $users->getFirstItem();
+
+      } else {
+
+        $api_user = Mage::getModel('api/user');
+        $api_user->setData(array(
+          'username' => 'choiceai',
+          'firstname' => 'ChoiceAI',
+          'lastname' => 'Personalisation',
+          'email' => 'magento@choice.ai',
+          'api_key' => $api_key,
+          'api_key_confirmation' => $api_key,
+          'is_active' => 1,
+          'user_roles' => '',
+          'assigned_user_role' => '',
+          'role_name' => '',
+          'roles' => array($api_role->getId())
+        ));
+
+        $api_user->save()->load($api_user->getId());
+
+      }
+
+      $api_user->setRoleIds(array($api_role->getId()))
+        ->setRoleUserId($api_user->getUserId())
+        ->saveRelations();
+
+    } catch (Exception $e) {
+      $error_message = $e->getMessage();
+    }
+
+    file_get_contents("https://app.choice.ai/stats/magentoinstall?enabled=".$enabled."&api_key=".$api_key."&store_url=".$store_url."&magentoversion=".$magento_version."&error=".$error_message);
 
   }
 
