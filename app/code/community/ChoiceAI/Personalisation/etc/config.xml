@@ -10,7 +10,7 @@
 <config>
     <modules>
         <ChoiceAI_Personalisation>
-            <version>1.0.12</version>
+            <version>0.0.9</version>
         </ChoiceAI_Personalisation>
     </modules>
     <global>
@@ -42,15 +42,6 @@
                 </observers>
             </admin_system_config_changed_section_choiceai_personalisation>
         </events>
-
-
-        <resources>
-            <personalisation_setup>
-                <setup>
-                    <module>ChoiceAI_Personalisation</module>
-                </setup>
-            </personalisation_setup>
-        </resources>
 
     </global>
     <frontend>

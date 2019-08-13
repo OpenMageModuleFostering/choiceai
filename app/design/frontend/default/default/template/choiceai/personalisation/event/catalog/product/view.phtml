@@ -23,13 +23,13 @@
 
 	$mwdata['product']['cat'] = array();
 	foreach($categories as $category) {
-        $mwdata['product']['cat'][] = $category->getName();
+    		$mwdata['product']['cat'][] = $category->getName();
 	}
 
 	$mwdata['product']['price'] = $_product->getPrice();
 
 	foreach($_associated_products as $simple_product) {
-        $product_info = array();
+        	$product_info = array();
 		$associated_ids[] = $simple_product->getId();
 		$product_info['id'] = $simple_product->getId();
 		$product_info['sku'] = $simple_product->getSku();

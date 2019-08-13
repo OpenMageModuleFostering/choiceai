@@ -1,39 +1,17 @@
 <?php echo Mage::helper('choiceai_personalisation')->getBaseScript() ?>
 <?php
-$user = $this->getUser();
-if($user) {
+  $user = $this->getUser();
+  if($user) {
     $email = $user->getEmail();
     if ($email && strlen($email) > 0) {
-        ?>
+      ?>
         <script type="text/javascript">
-            //<![CDATA[
-            window._caiapi = window._caiapi || [];
-            _caiapi.push(['trackUser', '<?php echo $email ?>']);
-            //]]>
+        //<![CDATA[
+        window._mwapi = window._mwapi || [];
+        _mwapi.push(['trackUser', '<?php echo $email ?>']);
+        //]]>
         </script>
-    <?php
+      <?php
     }
-}
-
-$cart = Mage::getModel('checkout/cart')->getQuote();
-$cart_items = array();
-foreach ($cart->getAllVisibleItems() as $item) {
-    $cart_item = array();
-    $cart_item['pid'] = $item->getProductId();
-    $cart_item['sku'] = $item->getSku();
-    $cart_item['name'] = $item->getProduct()->getName();
-    $cart_item['price'] = $item->getProduct()->getPrice();
-    $cart_item['final_price'] = $item->getProduct()->getFinalPrice();
-    $cart_item['special_price'] = $item->getProduct()->getSpecialPrice();
-    $cart_item['type'] = $item->getProduct()->getTypeId();
-    $cart_item['qty'] = $item->getQty();
-    $cart_items[] = $cart_item;
-}
+  }
 ?>
-
-<script type="text/javascript">
-    //<![CDATA[
-    window.CAI_CART_ITEMS = <?php echo json_encode($cart_items); ?>;
-    window.CAI_MAGENTO_ADDTOCART_FORM_KEY = '<?php echo Mage::getSingleton('core/session')->getFormKey()?>';
-    //]]>
-</script>
