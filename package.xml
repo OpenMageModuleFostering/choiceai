@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>choiceai</name>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <stability>stable</stability>
     <license uri="http://opensource.org/licenses/osl-3.0.php">osl</license>
     <channel>community</channel>
@@ -10,8 +10,8 @@
     <description>Choice AI</description>
     <notes>Initial Code</notes>
     <authors><author><name>MineWhat Inc.</name><user>MineWhat</user><email>plugins@minewhat.com</email></author></authors>
-    <date>2016-04-13</date>
-    <time>15:05:00</time>
+    <date>2016-05-11</date>
+    <time>12:05:00</time>
     <contents><target name="mageetc"><dir name="modules"><file name="ChoiceAI_Personalisation.xml" hash="28fd1d1b9b298b14b83fdcadf586efc5"/></dir></target><target name="magecommunity"><dir name="ChoiceAI"><dir name="Personalisation"><dir><dir name="Block"><dir name="Base"><file name="Script.php" hash="af614113dea10a0a6d88281f615f1929"/></dir><dir name="Event"><dir name="Catalog"><dir name="Product"><file name="View.php" hash="233ac45484c22ecdf7063071406f71e2"/></dir></dir><dir name="Checkout"><dir name="Cart"><file name="Index.php" hash="e3bc31a08a994d72223d78ebde8a74f0"/></dir><dir name="Onepage"><file name="Success.php" hash="cc242d118e6b06bb3817d95b2322167c"/></dir></dir></dir></dir><dir name="Helper"><file name="Data.php" hash="7da393b7cf4def36383198029a90c907"/></dir><dir name="Model"><file name="Observer.php" hash="b62729ff6f0d7666c1461b3259aa2755"/></dir><dir name="controllers"><file name="ApiController.php" hash="035c1f5e7c1cefbec8ae59b2f1946897"/></dir><dir name="etc"><file name="adminhtml.xml" hash="2fc12bb0874c8f39963f1593b3954d2e"/><file name="config.xml" hash="f743d8ead3776891503ff368ad7e7330"/><file name="system.xml" hash="6f4674088b4c392cc06f5a70f383fd54"/></dir></dir></dir></dir></target><target name="magedesign"><dir name="frontend"><dir name="base"><dir name="default"><dir name="template"><dir name="choiceai"><dir name="personalisation"><dir><dir name="base"><file name="script.phtml" hash="5e9386a2c0af502d406ba0c8f29b7345"/></dir><dir name="event"><dir name="catalog"><dir name="product"><file name="view.phtml" hash="21de45429a80fd7a025092cd17629e6d"/></dir></dir><dir name="checkout"><dir name="cart"><file name="index.phtml" hash="37a7ec61318af0e52aae869de631aaf6"/></dir></dir></dir></dir></dir></dir></dir><dir name="layout"><file name="choiceai_personalisation.xml" hash="95d72912f3b13c5a399e3b2e5b89dba9"/></dir></dir></dir><dir name="default"><dir name="default"><dir name="template"><dir name="choiceai"><dir name="personalisation"><dir><dir name="base"><file name="script.phtml" hash="3e5799dc6ccf5b4f120400d48f5f95d2"/></dir></dir></dir></dir></dir><dir name="layout"><file name="choiceai_personalisation.xml" hash="95d72912f3b13c5a399e3b2e5b89dba9"/></dir></dir></dir></dir></target></contents>
     <compatible/>
     <dependencies><required><php><min>5.2.5</min><max>6.0.0</max></php></required></dependencies>

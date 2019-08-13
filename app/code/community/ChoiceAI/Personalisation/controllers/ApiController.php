@@ -334,6 +334,85 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
 
     }
 
+    public function usersAction() {
+
+        try {
+
+            if(!$this->_authorise()) {
+                return $this;
+            }
+
+            $email = $this->getRequest()->getParam('email');
+
+            $limit = $this->getRequest()->getParam('limit', 100);
+            $offset = $this->getRequest()->getParam('offset', 0);
+
+            $attributes = array(
+                'id',
+                'email',
+                'firstname',
+                'lastname',
+                'created_at',
+                'updated_at'
+            );
+
+            $usersCollection = Mage::getModel('customer/customer')->getCollection();
+
+            if($email != null && strlen($email) > 0) {
+
+                $usersCollection
+                    ->addAttributeToFilter('email', $email);
+
+            } else {
+
+                $created_at_min = $this->getRequest()->getParam('created_at_min');
+                $created_at_max = $this->getRequest()->getParam('created_at_max');
+
+                $usersCollection->addAttributeToSelect($attributes);
+
+                if($created_at_min != null && strlen($created_at_min) > 0) {
+                    $usersCollection->addAttributeToFilter('created_at', array('from' => $created_at_min));
+                }
+
+                if($created_at_max != null && strlen($created_at_max) > 0) {
+                    $usersCollection->addAttributeToFilter('created_at', array('to' => $created_at_max));
+                }
+
+                $usersCollection->getSelect()
+                    ->limit($limit, $offset);
+
+            }
+
+            $users = array();
+
+            foreach ($usersCollection as $user) {
+                $formattedUser = array();
+                $formattedUser["id"] = $user->getId();
+                $formattedUser["email"] = $user->getEmail();
+                $formattedUser["firstname"] = $user->getFirstname();
+                $formattedUser["lastname"] = $user->getLastname();
+                $formattedUser["created_at"] = $user->getCreatedAt();
+                $formattedUser["updated_at"] = $user->getUpdatedAt();
+                $users[] = $formattedUser;
+            }
+
+
+            $this->getResponse()
+                ->setBody(json_encode(array('users' => $users, 'version' => 2)))
+                ->setHttpResponseCode(200)
+                ->setHeader('Content-type', 'application/json', true);
+
+        } catch(Exception $e) {
+            $this->getResponse()
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => 2)))
+                ->setHttpResponseCode(500)
+                ->setHeader('Content-type', 'application/json', true);
+        }
+
+        return $this;
+
+    }
+
 
     public function stockAction() {
 
@@ -411,9 +490,9 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                 'url'           =>  $product->getProductUrl(),
                 'info'          =>  $product->getShortDescription(),
                 'status'        =>  $product->getStatus(),
-                'type'		      =>  $product->getTypeId(),
-                'created_at'		=>  $product->getCreatedAt(),
-                'updated_at'		=>  $product->getUpdatedAt()
+                'type'            =>  $product->getTypeId(),
+                'created_at'        =>  $product->getCreatedAt(),
+                'updated_at'        =>  $product->getUpdatedAt()
             );
             if(!$formattedProduct['manufacturer'] || strlen($formattedProduct['manufacturer']) === 0) {
                 $product = Mage::getModel('catalog/product')->load($product->getId());
@@ -474,8 +553,8 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                 'url'           =>  $category->getUrl(),
                 'level'         =>  $category->getLevel(),
                 'is_active'     =>  $category->getIsActive(),
-                'created_at'		=>  $category->getCreatedAt(),
-                'updated_at'		=>  $category->getUpdatedAt()
+                'created_at'        =>  $category->getCreatedAt(),
+                'updated_at'        =>  $category->getUpdatedAt()
             );
 
         } catch(Exception $e) {}
@@ -485,4 +564,3 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
     }
 
 }
-
