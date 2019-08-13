@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<config>
+    <modules>
+        <ChoiceAI_Personalisation>
+            <active>true</active>
+            <codePool>community</codePool>
+        </ChoiceAI_Personalisation>
+    </modules>
+</config>

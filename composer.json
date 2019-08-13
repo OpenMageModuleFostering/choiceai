@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/choiceai",
+    "type": "magento-module",
+    "license": "osl",
+    "homepage": "",
+    "description": "Choice AI",
+    "authors": [
+    {
+        "name": "MineWhat Inc.",
+        "email": "plugins@minewhat.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

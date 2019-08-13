@@ -1,0 +1,17 @@
+<?php echo Mage::helper('choiceai_personalisation')->getBaseScript() ?>
+<?php
+  $user = $this->getUser();
+  if($user) {
+    $email = $user->getEmail();
+    if ($email && strlen($email) > 0) {
+      ?>
+        <script type="text/javascript">
+        //<![CDATA[
+        window._mwapi = window._mwapi || [];
+        _mwapi.push(['trackUser', '<?php echo $email ?>']);
+        //]]>
+        </script>
+      <?php
+    }
+  }
+?>
