@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles boolean attribute filtering in layered navigation.
  *
@@ -22,6 +23,7 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Boolean extends ChoiceAI_Search
             if ($value === 'true' || $value === 'T' || $value === '1' || $value === 1 || $value === true) {
                 $key = 1;
             }
+
             $result[$key] = $count;
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles category filtering in layered navigation.
  *
@@ -37,7 +38,7 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Category extends Mage_Catalog_M
         $category = $this->getCategory();
         $childrenCategories = $category->getChildrenCategories();
 
-        $useFlat = (bool) Mage::getStoreConfig('catalog/frontend/flat_catalog_category');
+        $useFlat = (bool)Mage::getStoreConfig('catalog/frontend/flat_catalog_category');
         $categories = ($useFlat)
             ? array_keys($childrenCategories)
             : array_keys($childrenCategories->toArray());
@@ -75,9 +76,10 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Category extends Mage_Catalog_M
     public function apply(Zend_Controller_Request_Abstract $request, $filterBlock)
     {
         $filter = $request->getParam($this->getRequestVar());
-        if (is_null($filter) || $filter == "") {
+        if ($filter === null || $filter == "") {
             return $this;
         }
+
         $this->applyFilterToCollection($this, $filter);
         $this->getLayer()->getState()->addFilter($this->_createItem($filter, $filter));
         $this->_items = null;
@@ -92,40 +94,44 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Category extends Mage_Catalog_M
     protected function _getItemsData()
     {
         $layer = $this->getLayer();
-            /** @var $productCollection ChoiceAI_Search_Model_Resource_Catalog_Product_Collection */
-            $productCollection = $layer->getProductCollection();
-            $facets = $productCollection->getFacetedData('category');
-            $data = array();
-	     if (array_sum($facets) > 0) {
-                    $options = array();
-                    foreach ($facets as $label => $count) {
-                        $options[] = array(
-                            'label' => $label,
-                            'value' => $label,
-                            'count' => $count,
-                        );
-                    }
-        //        }
-	      foreach ($options as $option) {
-                    if (is_array($option['value']) || !Mage::helper('core/string')->strlen($option['value'])) {
-                        continue;
-                    }
-                    $count = 0;
-                    $label = $option['label'];
-                    if (isset($facets[$option['value']])) {
-                        $count = (int) $facets[$option['value']];
-                    }
-                    if (!$count && $this->_getIsFilterableAttribute($attribute) == self::OPTIONS_ONLY_WITH_RESULTS) {
-                        continue;
-                    } 
-                    $data[] = array(
-                        'label' => $label,
-                        'value' => $option['value'],
-                        'count' => (int) $count,
-                    );
+        /** @var $productCollection ChoiceAI_Search_Model_Resource_Catalog_Product_Collection */
+        $attribute = $this->getAttributeModel();
+        $productCollection = $layer->getProductCollection();
+        $facets = $productCollection->getFacetedData('category');
+        $data = array();
+        if (array_sum($facets) > 0) {
+            $options = array();
+            foreach ($facets as $label => $count) {
+                $options[] = array(
+                    'label' => $label,
+                    'value' => $label,
+                    'count' => $count,
+                );
+            }
+
+            //        }
+            foreach ($options as $option) {
+                if (is_array($option['value']) || $option['value'] === "") {
+                    continue;
                 }
 
-	        }
+                $count = 0;
+                $label = $option['label'];
+                if (isset($facets[$option['value']])) {
+                    $count = (int)$facets[$option['value']];
+                }
+
+                if (!$count && $this->_getIsFilterableAttribute($attribute) == self::OPTIONS_ONLY_WITH_RESULTS) {
+                    continue;
+                }
+
+                $data[] = array(
+                    'label' => $label,
+                    'value' => $option['value'],
+                    'count' => (int)$count,
+                );
+            }
+        }
 
         return $data;
     }

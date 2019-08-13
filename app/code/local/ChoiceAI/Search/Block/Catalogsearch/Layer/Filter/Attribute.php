@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles attribute filtering in layered navigation in a query search context.
  *

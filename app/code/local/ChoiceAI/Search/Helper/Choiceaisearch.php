@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package ChoiceAI_Search
@@ -11,6 +12,5 @@ class ChoiceAI_Search_Helper_ChoiceAIsearch extends ChoiceAI_Search_Helper_Data
     public function getEngineConfigData($prefix = '', $website = null)
     {
         return Mage::helper('choiceai_searchcore')->getEngineConfigData($prefix, $website);
-        
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles decimal attribute filtering in layered navigation.
  *
@@ -22,7 +23,7 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Decimal extends Mage_Catalog_Mo
         $maxValue = $this->getMaxValue();
         if ($maxValue > 0) {
             $facets = array();
-            $facetCount = (int) ceil($maxValue / $range);
+            $facetCount = (int)ceil($maxValue / $range);
 
             for ($i = 0; $i < $facetCount + 1; $i++) {
                 $facets[] = array(
@@ -60,8 +61,8 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Decimal extends Mage_Catalog_Mo
 
         list($index, $range) = $filter;
 
-        if ((int) $index && (int) $range) {
-            $this->setRange((int) $range);
+        if ((int)$index && (int)$range) {
+            $this->setRange((int)$range);
 
             $this->applyFilterToCollection($this, $range, $index);
             $this->getLayer()->getState()->addFilter(
@@ -87,7 +88,7 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Decimal extends Mage_Catalog_Mo
         $value = array(
             $this->_getFilterField() => array(
                 'from' => ($range * ($index - 1)),
-                'to'   => $range * $index,
+                'to' => $range * $index,
             )
         );
         $filter->getLayer()->getProductCollection()->addFqFilter($value);
@@ -110,7 +111,7 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Decimal extends Mage_Catalog_Mo
                 $max = parent::getMaxValue();
             }
 
-            $cachedData = (float) $max;
+            $cachedData = (float)$max;
             $tags = $this->getLayer()->getStateTags();
             $tags[] = self::CACHE_TAG;
             Mage::app()->saveCache($cachedData, $cacheKey, $tags);

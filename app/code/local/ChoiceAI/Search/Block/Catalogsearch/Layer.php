@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Overrides default layer view process to define custom filter blocks.
  *
@@ -29,7 +30,7 @@ class ChoiceAI_Search_Block_Catalogsearch_Layer extends Mage_CatalogSearch_Block
             $this->_attributeFilterBlockName = 'choiceai_search/catalogsearch_layer_filter_attribute';
             $this->_priceFilterBlockName = 'choiceai_search/catalog_layer_filter_price';
             $this->_decimalFilterBlockName = 'choiceai_search/catalog_layer_filter_decimal';
-            $this->_booleanFilterBlockName   = 'choiceai_search/catalog_layer_filter_boolean';
+            $this->_booleanFilterBlockName = 'choiceai_search/catalog_layer_filter_boolean';
         }
     }
 
@@ -43,8 +44,7 @@ class ChoiceAI_Search_Block_Catalogsearch_Layer extends Mage_CatalogSearch_Block
     {
         /** @var $helper ChoiceAI_Search_Helper_Data */
         $helper = Mage::helper('choiceai_search');
-      if ($helper->isActiveEngine()) {
-
+        if ($helper->isActiveEngine()) {
             $stateBlock = $this->getLayout()->createBlock($this->_stateBlockName)
                 ->setLayer($this->getLayer());
 
@@ -79,10 +79,10 @@ class ChoiceAI_Search_Block_Catalogsearch_Layer extends Mage_CatalogSearch_Block
             }
 
             $this->getLayer()->apply();
-	    $this->getLayer()->getProductCollection()->load();
-        }else{
+            $this->getLayer()->getProductCollection()->load();
+        } else {
             parent::_prepareLayout();
-	    }
+        }
 
         return $this;
     }
@@ -110,6 +110,7 @@ class ChoiceAI_Search_Block_Catalogsearch_Layer extends Mage_CatalogSearch_Block
         if ($helper->isActiveEngine()) {
             return Mage::getSingleton('choiceai_search/catalogsearch_layer');
         }
+
         return parent::getLayer();
     }
 }

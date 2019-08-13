@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Custom catalog product collection model.
  *
@@ -6,7 +7,8 @@
  * @copyright   Copyright (c) MineWhat
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
+class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends
+    Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Collection
 {
     /**
      * @var ChoiceAI_Search_Model_Resource_Engine_Abstract Search engine.
@@ -38,7 +40,7 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
      */
     protected $_searchQueryFilters = array();
 
-    protected $_searchCategoryFilters =array();
+    protected $_searchCategoryFilters = array();
 
     /**
      * @var array Search query range filters.
@@ -54,10 +56,10 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
      * @var array Sort by definition.
      */
     protected $_sortBy = array();
-    
-    protected $qt = 'search';
 
-    protected $stats =array();
+    protected $_qt = 'search';
+
+    protected $_stats = array();
 
     /**
      * Adds facet condition to current collection.
@@ -69,9 +71,10 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
     public function addFacetCondition($field, $condition = null)
     {
         if (array_key_exists($field, $this->_facetsConditions)) {
-            if (!empty($this->_facetsConditions[$field])){
+            if (!empty($this->_facetsConditions[$field])) {
                 $this->_facetsConditions[$field] = array($this->_facetsConditions[$field]);
             }
+
             $this->_facetsConditions[$field][] = $condition;
         } else {
             $this->_facetsConditions[$field] = $condition;
@@ -96,7 +99,7 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
 
         return $this;
     }
-    
+
     /**
      * Stores filter query.
      *
@@ -104,19 +107,22 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
      * @return ChoiceAI_Search_Model_Resource_Catalog_Product_Collection
      */
     public function addCategoryId($id)
-    {   
-		$this->_searchCategoryFilters = $id;
+    {
+        $this->_searchCategoryFilters = $id;
 
         return $this;
     }
-    
+
     /**
      * setting the query type
+     * @param string $qt
+     * @return $this
      */
-     public function setQueryType($qt = 'search'){
-     	$this->qt = $qt;
-     	return $this;
-     }
+    public function setQueryType($qt = 'search')
+    {
+        $this->_qt = $qt;
+        return $this;
+    }
 
     /**
      * Stores range filter query.
@@ -209,12 +215,12 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
      */
     public function getSize()
     {
-        if (is_null($this->_totalRecords)) {
-            $query = $this->_getQuery();
+        if ($this->_totalRecords === null) {
+//            $query = $this->_getQuery();
             $params = $this->_getParams();
             $params['limit'] = 1;
             //$this->_engine->getIdsByQuery($query, $params);
-	    $this->_totalRecords = 1;
+            $this->_totalRecords = 1;
             //$this->_totalRecords = $this->_engine->getLastNumFound();
         }
 
@@ -225,12 +231,13 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
      * Retrieves current collection stats.
      * Used for max price.
      *
-     * @param $fields
+     * @param $field
      * @return mixed
+     * @internal param $fields
      */
     public function getStats($field)
     {
-	return isset($this->stats[$field])?$this->stats[$field]:array();
+        return isset($this->_stats[$field]) ? $this->_stats[$field] : array();
     }
 
     /**
@@ -268,28 +275,35 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
      */
     protected function _beforeLoad()
     {
-	if ($this->_engine) {
+        if ($this->_engine) {
             $result = $this->_engine->getIdsByQuery($this->qt, $this->_getParams());
             $this->_facetedData = isset($result['faceted_data']) ? $result['faceted_data'] : array();
             $this->_totalRecords = isset($result['total_count']) ? $result['total_count'] : null;
-            $this->stats = isset($result["stats"])?$result["stats"] :array();
-	        $this->results = isset($result["results"]) ? $result["results"] : array();
+            $this->_stats = isset($result["stats"]) ? $result["stats"] : array();
+            $this->results = isset($result["results"]) ? $result["results"] : array();
         }
-	foreach($this->results as $result){
-        	$product = new Mage_Catalog_Model_Product();
-		$result['id'] = $result['uniqueId'];
-		$product->addData($result);
-		$this->_items[$result['id']]=$product;
-	}
+
+        // Getting IDs of all products with the store
+//        $productIdsArray = Mage::getModel('catalog/product')->getCollection()->getAllIds();
+        foreach ($this->results as $result) {
+            // Keeping only those products which are in the store!
+            // TO DO: Filter those items if required
+//            if(in_array($result['uniqueId'], $productIdsArray)) {
+            $product = new Mage_Catalog_Model_Product();
+            $result['id'] = $result['uniqueId'];
+            $product->addData($result);
+            $this->_items[$result['id']] = $product;
+//            }
+        }
 
         return parent::_beforeLoad();
     }
 
-
-
     /**
      * Load collection data into object items
      *
+     * @param bool $printQuery
+     * @param bool $logQuery
      * @return Mage_Eav_Model_Entity_Collection_Abstract
      */
     public function load($printQuery = false, $logQuery = false)
@@ -297,6 +311,7 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
         if ($this->isLoaded()) {
             return $this;
         }
+
         Varien_Profiler::start('__EAV_COLLECTION_BEFORE_LOAD__');
         Mage::dispatchEvent('eav_collection_abstract_load_before', array('collection' => $this));
         $this->_beforeLoad();
@@ -311,10 +326,10 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
         Varien_Profiler::stop('__EAV_COLLECTION_LOAD_ATTR__');
 
         Varien_Profiler::start('__EAV_COLLECTION_ORIG_DATA__');
-	/*
-        foreach ($this->_items as $item) {
-            $item->setOrigData();
-        }*/
+        /*
+            foreach ($this->_items as $item) {
+                $item->setOrigData();
+            }*/
         Varien_Profiler::stop('__EAV_COLLECTION_ORIG_DATA__');
 
         $this->_setIsLoaded();
@@ -343,8 +358,8 @@ class ChoiceAI_Search_Model_Resource_Catalog_Product_Collection extends Mage_Cat
         }
 
         if ($this->_pageSize !== false) {
-            $page = ($this->_curPage  > 0) ? (int) $this->_curPage  : 1;
-            $rowCount = ($this->_pageSize > 0) ? (int) $this->_pageSize : 1;
+            $page = ($this->_curPage > 0) ? (int)$this->_curPage : 1;
+            $rowCount = ($this->_pageSize > 0) ? (int)$this->_pageSize : 1;
             $params['offset'] = $rowCount * ($page - 1);
             $params['limit'] = $rowCount;
         }

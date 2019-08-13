@@ -1,0 +1,13 @@
+<?php if (false && $this->engineStatus()) : ?>
+    <script type="text/javascript">
+        var searchInput = document.getElementById("search_mini_form");
+        <?php if(Mage::registry("contextId") && Mage::registry("contextId") != "") : ?>
+        var input2 = document.createElement("input");
+        input2.name = "contextId";
+        input2.type = "hidden";
+        input2.value = '<?php echo Mage::registry("contextId"); ?>';
+
+        searchInput.appendChild(input2);
+        <?php endif; ?>
+    </script>
+<?php endif; ?>

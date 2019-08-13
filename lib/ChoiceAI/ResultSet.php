@@ -43,7 +43,7 @@ class ChoiceAI_ResultSet implements Iterator, Countable {
 	
 
 	/**
-	 * Loads all data into the results object (initalisation)
+	 * Loads all data into the results object (initialisation)
 	 *
 	 * @param array $response
 	 */
@@ -51,12 +51,19 @@ class ChoiceAI_ResultSet implements Iterator, Countable {
 		$this->_response = $response;
 		
 		$result = $response;
-		$this->_totalHits = $result["data"]["total"];
+		$this->_totalHits = $result["total"];
 		$this->_took = isset($result["searchMetaData"]["queryTime"]) ? $result["searchMetaData"]['queryTime'] : 0;
-		if (isset($result["data"]["products"])) {
-			foreach ($result["data"]["products"] as $hit) {
-				$this->_results[] = new ChoiceAI_Result($hit);
-			}
+		if (isset($result["products"])) {
+		    if(isset($result["ids"])) {
+                foreach ($result["ids"] as $prodId) {
+                    if(isset($result['products'][$prodId]))
+                        $this->_results[] = new ChoiceAI_Result($result['products'][$prodId]);
+                }
+            }else {
+                foreach ($result["products"] as $hit) {
+                    $this->_results[] = new ChoiceAI_Result($hit);
+                }
+            }
 		}
 	}
 
@@ -74,8 +81,8 @@ class ChoiceAI_ResultSet implements Iterator, Countable {
 	 *
 	 * @return boolean Facet existence
 	 */
+    //    @TODO: Not being used
 	public function hasFacets() {
-		
 		return isset($this->_response['facets']);
 	}
 
@@ -86,7 +93,7 @@ class ChoiceAI_ResultSet implements Iterator, Countable {
 	 */
 	public function getFacets() {
         //return isset($this->_response['facets']) ? $this->_response['facets'] : array();
-        return isset($this->_response['data']) && isset($this->_response['data']['facets']) ? $this->_response['data']['facets'] : array();
+        return isset($this->_response) && isset($this->_response['facets']) ? $this->_response['facets'] : array();
 	}
 
 	/**
@@ -194,27 +201,24 @@ class ChoiceAI_ResultSet implements Iterator, Countable {
 	 * get didYouMean results
 	 */
 	 public function getSpellSuggestion(){
-	 		
-	 		$suggests=isset($this->_response['didYouMean'])?$this->_response['didYouMean']:null;
-	 		
-	 		if(is_null($suggests)||!is_array($suggests)||!sizeof($suggests)>0){
-	 			return null;
-	 		}
-	 		
-	 		
-	 		foreach($suggests as $suggestion){	 		
-	 			foreach($suggestion as $suggest_key=>$suggest_value){	 			 			
-	 				if($suggest_key=='suggestion'){
-	 					return $suggest_value;
-	 				}
-	 			}
-	 		}
-	 		
+         $suggests=isset($this->_response['didYouMean'])?$this->_response['didYouMean']:null;
+
+         if(is_null($suggests)||!is_array($suggests)||!sizeof($suggests)>0){
+             return null;
+         }
+
+         foreach($suggests as $suggestion){
+             foreach($suggestion as $suggest_key=>$suggest_value){
+                 if($suggest_key=='suggestion'){
+                     return $suggest_value;
+                 }
+             }
+         }
 	 }
 	 
 	 /**
-	  * get stats 
-	  */		
+	  * get stats
+	  */
 	  public function getStats(){
 //	  	echo json_encode($this->_response);
 	  	return isset($this->_response['stats'])?$this->_response['stats']:null;

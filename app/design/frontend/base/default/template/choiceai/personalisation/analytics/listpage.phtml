@@ -1,0 +1,22 @@
+<script type="text/javascript">
+  //<![CDATA[
+  window._caity = <?php echo $this->engineStatus() ? '"clistpage"' : '"category"' ?>;
+  <?php // Passing passback if received from server
+  if (Mage::registry("expId") && !Mage::registry("passback")) { ?>
+  window._caiExistingPage = '<?php echo Mage::registry("expId") ?>';
+  <?php
+  } if (Mage::registry("passback")) {
+  ?>
+  window._caiapi = window._caiapi || [];
+  window._caiExistingPage = '<?php echo Mage::registry("passback")["expId"] ?>';
+  _caiapi.push(['trackExperiment', <?php echo Mage::helper('core')->jsonEncode(Mage::registry("passback")) ?>]);
+  <?php if (Mage::registry("user_context") && Mage::registry("contextId")) { ?>
+  _caiapi.push(['trackContext', "<?php echo Mage::registry("user_context") ?>", "<?php echo Mage::registry("contextId") ?>"]);
+  <?php
+  }
+  ?>
+  <?php
+  }
+  ?>
+  //]]>
+</script>

@@ -6,8 +6,10 @@
  * Time: 12:47 PM
  */
 
-class ChoiceAI_Search_Block_Catalogsearch_Result extends Mage_CatalogSearch_Block_Result {
+class ChoiceAI_Search_Block_Catalogsearch_Result extends Mage_CatalogSearch_Block_Result
+{
     const IS_ACTIVE = 'choiceai_personalisation/settings/active';
+
     /**
      * Set search available list orders
      *
@@ -15,7 +17,7 @@ class ChoiceAI_Search_Block_Catalogsearch_Result extends Mage_CatalogSearch_Bloc
      */
     public function setListOrders()
     {
-        if(Mage::getStoreConfig(self::IS_ACTIVE)=='1') {
+        if (Mage::helper('choiceai_search')->isActiveEngine()) {
             $category = Mage::getSingleton('catalog/layer')
                 ->getCurrentCategory();
             /* @var $category Mage_Catalog_Model_Category */
@@ -27,7 +29,7 @@ class ChoiceAI_Search_Block_Catalogsearch_Result extends Mage_CatalogSearch_Bloc
                 ->setAvailableOrders($availableOrders)
                 ->setDefaultDirection('desc');
 //                ->setSortBy('relevance');
-        }else{
+        } else {
             return parent::setListOrders();
         }
 

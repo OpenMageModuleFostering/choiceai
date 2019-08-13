@@ -6,7 +6,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class ChoiceAI_Searchcore_Helper_Constants extends Mage_Core_Helper_Abstract {
+class ChoiceAI_Searchcore_Helper_Constants extends Mage_Core_Helper_Abstract
+{
 
     const SITE_KEY = "site_key";
 
@@ -100,9 +101,9 @@ class ChoiceAI_Searchcore_Helper_Constants extends Mage_Core_Helper_Abstract {
 
     const AUTOSUGGET_SIDE_TEMPLATE = 'sideTpl';
 
-    static $AUTOSUGGEST_SIDECONTENTS = array(self::AUTOSUGGEST_SIDECONTENT_RIGHT, self::AUTOSUGGEST_SIDECONTENT_LEFT);
-
-    static $AUTOSUGGEST_TEMPLATES = array(self::AUTOSUGGEST_TEMPLATE_1COLUMN, self::AUTOSUGGEST_TEMPLATE_2COLUMN);
+//    static $AUTOSUGGEST_SIDECONTENTS = array(self::AUTOSUGGEST_SIDECONTENT_RIGHT, self::AUTOSUGGEST_SIDECONTENT_LEFT);
+//
+//    static $AUTOSUGGEST_TEMPLATES = array(self::AUTOSUGGEST_TEMPLATE_1COLUMN, self::AUTOSUGGEST_TEMPLATE_2COLUMN);
 
     const SEARCH_MOD_STATUS = 'search_mod_status';
 
@@ -180,7 +181,7 @@ class ChoiceAI_Searchcore_Helper_Constants extends Mage_Core_Helper_Abstract {
 
     const FEED_STATUS_UPLOADING = 'UPLOADING';
 
-    const FEED_STATUS_UPLOADED_SUCCESSFULLY = 'UPLOADED SUCCESSFUL';
+    const FEED_STATUS_UPLOADED_SUCCESSFULLY = 'UPLOADED SUCCESSFULLY';
 
     const FEED_STATUS_UPLOADED_FAILED = 'FAILED';
 
@@ -191,5 +192,5 @@ class ChoiceAI_Searchcore_Helper_Constants extends Mage_Core_Helper_Abstract {
     const AUTH_REQUEST_PARAM = 'auth';
 
     const LAST_UPLOAD_TIME = 'lastUpload';
-	
+
 }

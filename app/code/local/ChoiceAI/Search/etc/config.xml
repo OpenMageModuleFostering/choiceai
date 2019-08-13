@@ -2,7 +2,7 @@
 <config>
     <modules>
         <ChoiceAI_Search>
-            <version>0.0.9</version>
+            <version>1.1.1</version>
         </ChoiceAI_Search>
     </modules>
     <global>
@@ -18,6 +18,7 @@
                 <rewrite>
                     <config>ChoiceAI_Search_Model_Catalog_Config</config>
                     <category>ChoiceAI_Search_Model_Catalog_Category</category>
+                    <!--<product_url>ChoiceAI_Search_Model_Catalog_Product_Url</product_url>-->
                 </rewrite>
             </catalog>
         </models>
@@ -25,11 +26,11 @@
             <choiceai_search>
                 <class>ChoiceAI_Search_Helper</class>
             </choiceai_search>
-            <catalogsearch>
+            <configurableswatches>
                 <rewrite>
-		    <data>ChoiceAI_Search_Helper_Catalogsearch</data>
-		</rewrite>
-	    </catalogsearch>
+                    <productimg>ChoiceAI_Search_Helper_Productimg</productimg>
+                </rewrite>
+            </configurableswatches>
         </helpers>
         <blocks>
             <choiceai_search>
@@ -54,48 +55,5 @@
                 </rewrite>
             </enterprise_search>
         </blocks>
-        <resources>
-            <choiceai_search_setup>
-                <setup>
-                    <module>ChoiceAI_Search</module>
-                    <class>Mage_Core_Model_Resource_Setup</class>
-                </setup>
-            </choiceai_search_setup>
-        </resources>
     </global>
-    <default>
-        <catalog>
-            <search>                
-                <choiceai_ruleset>search</choiceai_ruleset>
-                <choiceai_timeout>300</choiceai_timeout>
-            </search>
-        </catalog>
-        <choiceai>
-            <general>
-                <multiselect_facet>true</multiselect_facet>
-                <autosuggest_status>false</autosuggest_status>
-                <autosuggest_skin>#ff8400</autosuggest_skin>
-                <autosuggest_template>1column</autosuggest_template>
-                <autosuggest_max_suggestion>12</autosuggest_max_suggestion>
-                <autosuggest_top_queries_status>false</autosuggest_top_queries_status>
-                <autosuggest_keyword_status>true</autosuggest_keyword_status>
-                <autosuggest_search_scope_status>true</autosuggest_search_scope_status>
-                <autosuggest_max_products>2</autosuggest_max_products>
-                <autosuggest_product_header>Popular Products</autosuggest_product_header>
-                <autosuggest_keyword_header></autosuggest_keyword_header>
-                <autosuggest_search_scope_header></autosuggest_search_scope_header>
-                <autosuggest_show_cart>false</autosuggest_show_cart>
-                <autosuggest_sidecontent>right</autosuggest_sidecontent>
-                <autosuggest_topquery_header></autosuggest_topquery_header>
-                <autosuggest_keyword_header></autosuggest_keyword_header>
-                <autosuggest_search_scope_header></autosuggest_search_scope_header>
-                <autosuggest_pop_product_header>Popular Products</autosuggest_pop_product_header>
-                <search_mod_status>false</search_mod_status>
-                <search_mod_power>search</search_mod_power>
-                <search_hosted_status>false</search_hosted_status>
-                <search_hosted_int_status>false</search_hosted_int_status>
-                <search_hosted_redirect_url></search_hosted_redirect_url>
-            </general>
-        </choiceai>
-    </default>
 </config>

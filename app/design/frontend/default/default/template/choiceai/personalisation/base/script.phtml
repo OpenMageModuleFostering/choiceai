@@ -34,10 +34,6 @@ foreach ($cart->getAllVisibleItems() as $item) {
 <script type="text/javascript">
     //<![CDATA[
     window.CAI_CART_ITEMS = <?php echo json_encode($cart_items); ?>;
-    window.cai_magento_addtocart = function(id, selected_variant_params, qty) {
-        var form_key = '<?php echo Mage::getSingleton('core/session')->getFormKey()?>';
-        var url = '<?php echo Mage::getUrl('checkout/cart/add');?>'+'product/'+id+'/qty/'+qty+'/form_key/'+form_key;
-        window.location.assign(url);
-    }
+    window.CAI_MAGENTO_ADDTOCART_FORM_KEY = '<?php echo Mage::getSingleton('core/session')->getFormKey()?>';
     //]]>
 </script>

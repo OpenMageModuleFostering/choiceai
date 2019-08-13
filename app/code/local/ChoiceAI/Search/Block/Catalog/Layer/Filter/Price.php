@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package ChoiceAI_Search
@@ -44,7 +45,6 @@ class ChoiceAI_Search_Block_Catalog_Layer_Filter_Price extends Mage_Catalog_Bloc
 
         return $this;
     }
-
 
 
 }

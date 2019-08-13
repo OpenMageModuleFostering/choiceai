@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles price filtering in layered navigation.
  *
@@ -29,11 +30,11 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Price extends Mage_Catalog_Mode
      */
     public function getMaxPriceMod()
     {
-        $priceStat =  Mage::getSingleton('choiceai_search/catalog_layer')->getProductCollection()->getStats('price');
-        $productCollection = $this->getLayer()->getProductCollection();
-        return isset($priceStat["max"])?(int)$priceStat["max"]:0;
+        $priceStat = Mage::getSingleton('choiceai_search/catalog_layer')->getProductCollection()
+            ->getStats('price');
+//        $productCollection = $this->getLayer()->getProductCollection();
+        return isset($priceStat["max"]) ? (int)$priceStat["max"] : 0;
     }
-
 
 
     /**
@@ -43,9 +44,10 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Price extends Mage_Catalog_Mode
      */
     public function getMinPriceMod()
     {
-        $priceStat =  Mage::getSingleton('choiceai_search/catalog_layer')->getProductCollection()->getStats('price');
-        $productCollection = $this->getLayer()->getProductCollection();
-        return isset($priceStat["min"])?(int)$priceStat["min"]:0;
+        $priceStat = Mage::getSingleton('choiceai_search/catalog_layer')->getProductCollection()
+            ->getStats('price');
+//        $productCollection = $this->getLayer()->getProductCollection();
+        return isset($priceStat["min"]) ? (int)$priceStat["min"] : 0;
     }
 
     /**
@@ -55,9 +57,9 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Price extends Mage_Catalog_Mode
      */
     protected function _getFilterField()
     {
-        $websiteId = Mage::app()->getStore()->getWebsiteId();
-        $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
-        $priceField = 'price' ;
+//        $websiteId = Mage::app()->getStore()->getWebsiteId();
+//        $customerGroupId = Mage::getSingleton('customer/session')->getCustomerGroupId();
+        $priceField = 'price';
 
         return $priceField;
     }
@@ -69,7 +71,7 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Price extends Mage_Catalog_Mode
      */
     protected function _getItemsData()
     {
-//        if (Mage::app()->getStore()->getConfig(self::XML_PATH_RANGE_CALCULATION) == self::RANGE_CALCULATION_IMPROVED) {
+    //if (Mage::app()->getStore()->getConfig(self::XML_PATH_RANGE_CALCULATION) == self::RANGE_CALCULATION_IMPROVED) {
         //          return $this->_getCalculatedItemsData();}
         if ($this->getInterval()) {
             return array();
@@ -83,12 +85,13 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Price extends Mage_Catalog_Mode
                     unset($facets[$key]);
                 }
             }
+
             $i = 0;
             foreach ($facets as $key => $count) {
                 $i++;
-                preg_match('/^\[(\d*) TO (\d*)\]$/', $key, $rangeKey);
-                $fromPrice = $rangeKey[1];
-                $toPrice = $rangeKey[2];
+                $rangeKey = explode("-", $key);
+                $fromPrice = $rangeKey[0];
+                $toPrice = $rangeKey[1];
                 $data[] = array(
                     'label' => $this->_renderRangeLabel($fromPrice, $toPrice),
                     'value' => $fromPrice . self::DELIMITER . $toPrice,
@@ -117,23 +120,27 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Price extends Mage_Catalog_Mode
     }
 
 
-    public function apply(Zend_Controller_Request_Abstract $request, $filterBlock){
+    public function apply(Zend_Controller_Request_Abstract $request, $filterBlock)
+    {
 
         $filter = $request->getParam($this->_requestVar);
-        if(null == $filter){
+        if (null == $filter) {
             return $this;
         }
-        $filter =explode(self::DELIMITER, $filter);
-        if (!is_array($filter) || null === $filter || sizeof($filter)<2 ) {
+
+        $filter = explode(self::DELIMITER, $filter);
+        if (!is_array($filter) || null === $filter || count($filter) < 2) {
             return $this;
         }
+
         $this->applyFilterToCollection($this, $filter);
         $this->_items = null;
         return $this;
     }
 
 
-    function applyFilterToCollection($filter,$filterValue){
+    public function applyFilterToCollection($filter, $filterValue)
+    {
         $field = $this->_getFilterField();
         $value = array(
             $field => array(
@@ -141,13 +148,14 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Price extends Mage_Catalog_Mode
             )
         );
 
-        if($filterValue[0]< $filterValue[1]){
+        if ($filterValue[0] < $filterValue[1]) {
             $value[$field]['from'] = $filterValue[0];
             $value[$field]['to'] = $filterValue[1];
-        }else{
+        } else {
             $value[$field]['from'] = $filterValue[1];
             $value[$field]['to'] = $filterValue[0];
         }
+
         $this->getLayer()->getProductCollection()->addSearchQfFilter($value);
         return $this;
     }

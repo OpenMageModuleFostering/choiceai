@@ -1,17 +1,10 @@
 <config>
 	<modules>
 		<ChoiceAI_Searchcore>
-			<version>0.0.9</version>
+			<version>1.1.1</version>
 		</ChoiceAI_Searchcore>
 	</modules>
 	<global>
-        <resources>
-            <choiceai_searchcore_setup>
-                <setup>
-                    <module>ChoiceAI_Searchcore</module>
-                </setup>
-            </choiceai_searchcore_setup>
-        </resources>
         <helpers>
             <choiceai_searchcore>
                 <class>ChoiceAI_Searchcore_Helper</class>
@@ -20,114 +13,7 @@
 		<models>
 			<choiceai_searchcore>
 				<class>ChoiceAI_Searchcore_Model</class>
-				<resourceModel>choiceai_searchcore_resource</resourceModel>
 			</choiceai_searchcore>
-			<choiceai_searchcore_resource>
-				<class>ChoiceAI_Searchcore_Model_Resource</class>
-				<entities>
-					<config>
-						<table>choiceai_recommendation_conf</table>
-					</config>
-                    <field>
-                        <table>choiceai_field_conf</table>
-                    </field>
-                    <sync>
-                        <table>choiceai_product_sync</table>
-                    </sync>
-				</entities>
-			</choiceai_searchcore_resource>
 		</models>
-        <blocks>
-            <choiceai_searchcore>
-                <class>ChoiceAI_Searchcore_Block</class>
-            </choiceai_searchcore>
-        </blocks>
-		<events>
-			<controller_action_predispatch_choiceai_searchcore>
-				<observers>
-					<choiceai_searchcore_auth>
-						<type>singleton</type>
-                                                <class>choiceai_searchcore/auth</class>
-                                                <method>authorize</method>
-					</choiceai_searchcore_auth>
-				</observers>
-			</controller_action_predispatch_choiceai_searchcore>
-			<checkout_cart_add_product_complete>
-				<observers>
-					<choiceai_searchcore_cart_tracker>
-						<type>singleton</type>
-						<class>choiceai_searchcore/observer</class>
-						<method>trackAddToCart</method>
-					</choiceai_searchcore_cart_tracker>
-				</observers>
-			</checkout_cart_add_product_complete>
-			<sales_order_payment_place_end>
-				<observers>
-					<choiceai_searchcore_order_tracker>
-						<type>singleton</type>
-						<class>choiceai_searchcore/observer</class>
-						<method>trackOrder</method>
-					</choiceai_searchcore_order_tracker>
-				</observers>
-			</sales_order_payment_place_end>
-            <catalog_product_delete_before>
-                <observers>
-                    <choiceai_searchcore_order_tracker>
-                        <type>singleton</type>
-                        <class>choiceai_searchcore/observer</class>
-                        <method>trackDelete</method>
-                    </choiceai_searchcore_order_tracker>
-                </observers>
-            </catalog_product_delete_before>
-            <catalog_product_delete_commit_after>
-                <observers>
-                    <choiceai_searchcore_order_tracker>
-                        <type>singleton</type>
-                        <class>choiceai_searchcore/observer</class>
-                        <method>trackDelete</method>
-                    </choiceai_searchcore_order_tracker>
-                </observers>
-            </catalog_product_delete_commit_after>
-	     <cataloginventory_stock_item_save_commit_after>
-                <observers>
-                    <choiceai_searchcore_catalog_inventory_save>
-                        <type>singleton</type>
-                        <class>choiceai_searchcore/observer</class>
-                        <method>catalogInventorySave</method>
-                    </choiceai_searchcore_catalog_inventory_save>
-                </observers>
-            </cataloginventory_stock_item_save_commit_after>
-            <sales_order_item_cancel>
-                <observers>
-                    <choiceai_searchcore_order_cancel>
-                        <type>singleton</type>
-                        <class>choiceai_searchcore/observer</class>
-                        <method>catalogInventorySave</method>
-                    </choiceai_searchcore_order_cancel>
-                </observers>
-            </sales_order_item_cancel>
-		</events>
 	</global>
-    <default>
-        <choiceai>
-            <general>
-                <price>final_price</price>
-                <productUrl>url_path</productUrl>
-                <max_feed_lock_feed>2</max_feed_lock_feed>
-                <include_out_of_stock>true</include_out_of_stock>
-                <include_child_product>true</include_child_product>
-                <include_taxonomy_nodes>false</include_taxonomy_nodes>
-                <include_taxonomy_mapping>false</include_taxonomy_mapping>
-                <include_out_of_stock_from_non_cache>false</include_out_of_stock_from_non_cache>
-                <include_only_enabled_child_product>true</include_only_enabled_child_product>
-                <include_out_of_stock_child_product>false</include_out_of_stock_child_product>
-		        <field_conf>{}</field_conf>
-		        <exclude_category>[]</exclude_category>
-                <tracker_url>https://tracker.choiceaiapi.com/</tracker_url>
-                <platform_url>https://accounts.choiceaiapi.com/admin/</platform_url>
-                <service_url>https://starwreck.choiceaiapi.com/</service_url>
-                <feed_url>https://feed.choiceaiapi.com/</feed_url>
-            </general>
-        </choiceai>
-    </default>
 </config>

@@ -33,6 +33,7 @@ foreach ($cart->getAllVisibleItems() as $item) {
 
 <script type="text/javascript">
     //<![CDATA[
+    window._mwuserid = '<?php echo Mage::registry("caiuid")?>';
     window.CAI_CART_ITEMS = <?php echo json_encode($cart_items); ?>;
     window.CAI_MAGENTO_ADDTOCART_FORM_KEY = '<?php echo Mage::getSingleton('core/session')->getFormKey()?>';
     //]]>

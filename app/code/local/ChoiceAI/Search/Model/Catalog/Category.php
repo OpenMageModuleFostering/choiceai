@@ -22,17 +22,17 @@ class ChoiceAI_Search_Model_Catalog_Category extends Mage_Catalog_Model_Category
         $overtakeFlag = false;
 
         // Check if URL in takeover list
-        $STORE_CONFIG = json_decode(Mage::getStoreConfig(self::CONFIG_KEY));
-        $sortbyObjs = $STORE_CONFIG->sortby;
-
+        $storeConfig = json_decode(Mage::getStoreConfig(self::CONFIG_KEY));
+        $sortbyObjs = $storeConfig->sortby;
+        $server = Mage::app()->getRequest()->getServer();
 //      Getting URL Path
-        $currentReqPath = explode("?", $_SERVER['REQUEST_URI'])[0];
+        $currentReqPath = explode("?", $server['REQUEST_URI'])[0];
 
 //      Getting param keys in array var $paramPairs
-        parse_str($_SERVER['QUERY_STRING'], $paramPairs);
+        parse_str($server['QUERY_STRING'], $paramPairs);
 //      Getting query keys
         $currentReqParams = array();
-        if (count($paramPairs)) {
+        if (!empty($paramPairs)) {
             foreach ($paramPairs as $key => $paramPair)
                 $currentReqParams[] = $key;
         }
@@ -46,10 +46,10 @@ class ChoiceAI_Search_Model_Catalog_Category extends Mage_Catalog_Model_Category
         if (strpos($currentReqPath, "/index.php/") !== false)
             $currentReqPath = str_replace("/index.php/", "/", $currentReqPath);
 
-      $isPluginActive = Mage::getStoreConfig(self::IS_ACTIVE)=='1';
+        $isPluginActive = Mage::helper('choiceai_search')->isActiveEngine();
 //        $isPluginActive = true;
 
-        if($isPluginActive) {
+        if ($isPluginActive) {
             foreach ($sortbyObjs as $sortbyObj) {
                 if (isset($sortbyObj->rule->paths)) {
                     if (in_array($currentReqPath, $sortbyObj->rule->paths)) {
@@ -65,10 +65,9 @@ class ChoiceAI_Search_Model_Catalog_Category extends Mage_Catalog_Model_Category
             }
         }
 
-        if($overtakeFlag)
+        if ($overtakeFlag)
             return Mage::getSingleton('catalog/config')->getAttributeUsedForSortByArray();
         else
             return parent::getAvailableSortByOptions();
-
     }
 }

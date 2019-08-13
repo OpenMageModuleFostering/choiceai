@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles attribute filtering in layered navigation.
  *
@@ -38,9 +39,10 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Attribute extends Mage_Catalog_
         if (is_array($filter) || null === $filter || strlen($filter) == 0) {
             return $this;
         }
+
         $filterValues = explode(self::MULTI_SELECT_FACET_SPLIT, $filter);
         $this->applyFilterToCollection($this, $filterValues);
-        foreach($filterValues as $eachFilterValue) {
+        foreach ($filterValues as $eachFilterValue) {
             $this->getLayer()->getState()->addFilter($this->_createItem($eachFilterValue, $eachFilterValue));
         }
 
@@ -58,9 +60,10 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Attribute extends Mage_Catalog_
      */
     public function applyFilterToCollection($filter, $value)
     {
-        if(!is_array($value)) {
+        if (!is_array($value)) {
             return $this;
         }
+
         $attribute = $filter->getAttributeModel();
         $param = Mage::helper('choiceai_search')->getSearchParam($attribute, $value);
 
@@ -88,9 +91,9 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Attribute extends Mage_Catalog_
 
     public function getMaxPriceInt()
     {
-        $priceStat =  Mage::getSingleton('choiceai_search/catalog_layer')->getProductCollection()->getStats('price');
+        $priceStat = Mage::getSingleton('choiceai_search/catalog_layer')->getProductCollection()->getStats('price');
         $productCollection = $this->getLayer()->getProductCollection();
-        return isset($priceStat["max"])?$priceStat["max"]:0;
+        return isset($priceStat["max"]) ? $priceStat["max"] : 0;
     }
 
 
@@ -115,7 +118,8 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Attribute extends Mage_Catalog_
      */
     protected function _getItemsData()
     {
-        $filter = array_key_exists($this->_requestVar, $_REQUEST)?$_REQUEST[$this->_requestVar]: '';
+        $params = Mage::app()->getRequest()->getParams();
+        $filter = array_key_exists($this->_requestVar, $params) ? $params[$this->_requestVar] : '';
         $filterValues = explode(self::MULTI_SELECT_FACET_SPLIT, $filter);
         /** @var $attribute Mage_Catalog_Model_Resource_Eav_Attribute */
         $attribute = $this->getAttributeModel();
@@ -125,10 +129,11 @@ class ChoiceAI_Search_Model_Catalog_Layer_Filter_Attribute extends Mage_Catalog_
 
         if (array_sum($facets) > 0) {
             foreach ($facets as $label => $count) {
-                $isSelected = in_array($label, $filterValues);
+//                $isSelected = in_array($label, $filterValues);
                 if (!$count && $this->_getIsFilterableAttribute($attribute) == self::OPTIONS_ONLY_WITH_RESULTS) {
                     continue;
                 }
+
                 $data[] = array(
                     'label' => $label,
                     'value' => $label,

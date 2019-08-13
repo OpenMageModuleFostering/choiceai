@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Overrides default layer model to handle custom product collection filtering.
  *
@@ -27,7 +28,7 @@ class ChoiceAI_Search_Model_Catalog_Layer extends Mage_Catalog_Model_Layer
                 ->addCategoryId($category->getId())
                 ->setQueryType('browse')
                 ->addFqFilter(array('store_id' => $category->getStoreId()));
-                
+
             $this->prepareProductCollection($collection);
             $this->_productCollections[$category->getId()] = $collection;
         }

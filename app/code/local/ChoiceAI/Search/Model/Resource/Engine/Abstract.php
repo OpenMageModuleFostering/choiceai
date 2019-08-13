@@ -1,6 +1,7 @@
 <?php
+
 /**
- * search client.
+ * Search client.
  *
  * @package ChoiceAI_Search
  * @copyright   Copyright (c) MineWhat
@@ -8,32 +9,7 @@
  */
 abstract class ChoiceAI_Search_Model_Resource_Engine_Abstract
 {
-    const DEFAULT_ROWS_LIMIT = 9999;
-
     const UNIQUE_KEY = 'unique';
-
-    /**
-     * @var string List of advanced index fields prefix.
-     */
-    protected $_advancedIndexFieldsPrefix = '#';
-
-    /**
-     * @var array List of advanced dynamic index fields.
-     */
-    protected $_advancedDynamicIndexFields = array(
-        '#position_category_',
-        '#price_'
-    );
-
-    /**
-     * @var object Search engine client.
-     */
-    protected $_client;
-
-    /**
-     * @var array List of dates format.
-     */
-    protected $_dateFormats = array();
 
     /**
      * @var array List of default query parameters.
@@ -74,11 +50,6 @@ abstract class ChoiceAI_Search_Model_Resource_Engine_Abstract
     );
 
     /**
-     * @var bool Stores search engine availibility
-     */
-    protected $_test = null;
-
-    /**
      * @var array List of used fields.
      */
     protected $_usedFields = array(
@@ -94,79 +65,14 @@ abstract class ChoiceAI_Search_Model_Resource_Engine_Abstract
         'score'
     );
 
-	/**
-	 * Get Indexer instance
-	 *
-	 * @return Mage_Index_Model_Indexer
-	 */
-	protected function _getIndexer()
-	{
-		return Mage::getSingleton('index/indexer');
-	}
-
     /**
-     * Adds advanced index fields to index data.
+     * Get Indexer instance
      *
-     * @param array $index
-     * @param int $storeId
-     * @param array $productIds
-     * @return array
+     * @return Mage_Index_Model_Indexer
      */
-    public function addAdvancedIndex($index, $storeId, $productIds = null)
+    protected function _getIndexer()
     {
-	return 1;
-    }
-
-    /**
-     * Checks if advanced index is allowed for current search engine.
-     *
-     * @return bool
-     */
-    public function allowAdvancedIndex()
-    {
-        return false;
-        
-    }
-
-
-    public function cleanIndex()
-    {
-	return $this;
-    }
-
-    /**
-     * Cleans cache.
-     *
-     * @return ChoiceAI_Search_Model_Resource_Engine_Abstract
-     */
-    public function cleanCache()
-    {
-	return $this->_getIndexer()->getProcessByCode('catalogsearch_fulltext')->cleanCache();
-        
-    }
-
-
-   
-
-    /**
-     * Returns product visibility ids for search.
-     *
-     * @see Mage_Catalog_Model_Product_Visibility
-     * @return mixed
-     */
-    public function getAllowedVisibility()
-    {
-        return Mage::getSingleton('catalog/product_visibility')->getVisibleInSearchIds();
-    }
-
-    /**
-     * Returns advanced index fields prefix.
-     *
-     * @return string
-     */
-    public function getFieldsPrefix()
-    {
-        return $this->_advancedIndexFieldsPrefix;
+        return Mage::getSingleton('index/indexer');
     }
 
     /**
@@ -183,16 +89,17 @@ abstract class ChoiceAI_Search_Model_Resource_Engine_Abstract
         $params['fields'] = array('id');
         $resultTmp = $this->search($query, $params, $type);
         if (!empty($resultTmp['ids'])) {
-            foreach ($resultTmp['ids'] as $id) { 
+            foreach ($resultTmp['ids'] as $id) {
                 $ids[] = $id['uniqueId'];
             }
         }
+
         $result = array(
             'ids' => $ids,
             'total_count' => (isset($resultTmp['total_count'])) ? $resultTmp['total_count'] : null,
             'faceted_data' => (isset($resultTmp['facets'])) ? $resultTmp['facets'] : array(),
-	        'results' => array_key_exists('result', $resultTmp)?$resultTmp["result"]: array(),
-	    'stats' => array_key_exists('stats', $resultTmp)?$resultTmp["stats"]: array()
+            'results' => array_key_exists('result', $resultTmp) ? $resultTmp["result"] : array(),
+            'stats' => array_key_exists('stats', $resultTmp) ? $resultTmp["stats"] : array()
         );
 
         return $result;
@@ -218,42 +125,10 @@ abstract class ChoiceAI_Search_Model_Resource_Engine_Abstract
         return Mage::getResourceModel('choiceai_search/catalog_product_collection')->setEngine($this);
     }
 
-
     /**
-     * Alias of isLayeredNavigationAllowed.
+     * Performs search query and facetting
      *
-     * @return bool
-     */
-    public function isLeyeredNavigationAllowed()
-    {
-        return $this->isLayeredNavigationAllowed();
-    }
-
-    /**
-     * Checks if layered navigation is available for current search engine.
-     *
-     * @return bool
-     */
-    public function isLayeredNavigationAllowed()
-    {
-        return true;
-    }
-
-    /**
-     * Prepares index data.
-     * Should be overriden in child classes if needed.
-     *
-     * @param $index
-     * @param string $separator
-     * @return array
-     */
-    public function prepareEntityIndex($index, $separator = null)
-    {
-        return $this->_getHelper()->prepareIndexData($index, $separator);
-    }
-
-    /**
-     * Performs search query and facetting.
+     * The main function that does the search!
      *
      * @param string $query
      * @param array $params
@@ -279,46 +154,6 @@ abstract class ChoiceAI_Search_Model_Resource_Engine_Abstract
     }
 
     /**
-     * Checks search engine availability.
-     * Should be overriden by child classes.
-     *
-     * @return bool
-     */
-    public function test()
-    {
-        return true;
-    }
-
-    /**
-     * Transforms specified date to basic YYYY-MM-dd format.
-     *
-     * @param int $storeId
-     * @param string $date
-     * @return null|string
-     */
-    protected function _getDate($storeId, $date = null)
-    {
-        if (!isset($this->_dateFormats[$storeId])) {
-            $timezone = Mage::getStoreConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_TIMEZONE, $storeId);
-            $locale   = Mage::getStoreConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_LOCALE, $storeId);
-            $locale   = new Zend_Locale($locale);
-
-            $dateObj  = new Zend_Date(null, null, $locale);
-            $dateObj->setTimezone($timezone);
-            $this->_dateFormats[$storeId] = array($dateObj, $locale->getTranslation(null, 'date', $locale));
-        }
-
-        if (is_empty_date($date)) {
-            return null;
-        }
-
-        list($dateObj, $localeDateFormat) = $this->_dateFormats[$storeId];
-        $dateObj->setDate($date, $localeDateFormat);
-
-        return $dateObj->toString('YYYY-MM-dd');
-    }
-
-    /**
      * Returns search helper.
      *
      * @return ChoiceAI_Search_Helper_Data
@@ -328,126 +163,4 @@ abstract class ChoiceAI_Search_Model_Resource_Engine_Abstract
         return Mage::helper('choiceai_search');
     }
 
-    /**
-     * Returns indexable attribute parameters.
-     *
-     * @return array
-     */
-    protected function _getIndexableAttributeParams()
-    {
-        if (null === $this->_indexableAttributeParams) {
-            $this->_indexableAttributeParams = array();
-            $attributes = $this->_getHelper()->getSearchableAttributes();
-            foreach ($attributes as $attribute) {
-                /** @var $attribute Mage_Catalog_Model_Resource_Eav_Attribute */
-                $this->_indexableAttributeParams[$attribute->getAttributeCode()] = array(
-                    'backend_type'   => $attribute->getBackendType(),
-                    'frontend_input' => $attribute->getFrontendInput(),
-                    'search_weight'  => $attribute->getSearchWeight(),
-                    'is_searchable'  => $attribute->getIsSearchable()
-                );
-            }
-        }
-
-        return $this->_getIndexer()->getProcessByCode('catalogsearch_fulltext')->_getIndexableAttributeParams();
-    }
-
-    /**
-     * Returns store locale code.
-     *
-     * @param int $storeId
-     * @return string
-     */
-    protected function _getLocaleCode($storeId = null)
-    {
-        return $this->_getHelper()->getLocaleCode($storeId);
-    }
-
-    /**
-     * Transforms specified object to an array.
-     *
-     * @param $object
-     * @return array
-     */
-    protected function _objectToArray($object)
-    {
-        if (!is_object($object) && !is_array($object)){
-            return $object;
-        }
-        if (is_object($object)){
-            $object = get_object_vars($object);
-        }
-
-        return array_map(array($this, '_objectToArray'), $object);
-    }
-
-    /**
-     * @param array $docsData
-     * @param string $type
-     * @param string $localeCode
-     * @return array
-     */
-    protected function _prepareDocs($docsData, $type, $localeCode = null)
-    {
-        if (!is_array($docsData) || empty($docsData)) {
-            return array();
-        }
-
-        $docs = array();
-        foreach ($docsData as $entityId => $index) {
-            $index[self::UNIQUE_KEY] = $entityId . '|' . $index['store_id'];
-            $index['id'] = $entityId;
-            $index = $this->_prepareIndexData($index, $localeCode);
-            $docs[] = $this->_createDoc($entityId, $index, $type);
-        }
-
-        return $this->_getIndexer()->getProcessByCode('catalogsearch_fulltext')->_prepareDocs();
-    }
-
-    /**
-     * Prepares index data before indexation.
-     *
-     * @param array $data
-     * @param string $localeCode
-     * @return array
-     */
-    protected function _prepareIndexData($data, $localeCode = null)
-    {
-        if (!is_array($data) || empty($data)) {
-            return array();
-        }
-
-        foreach ($data as $key => $value) {
-            if (in_array($key, $this->_usedFields)) {
-                continue;
-            } elseif ($key == 'options') {
-                unset($data[$key]);
-                continue;
-            }
-            $field = $this->_getHelper()->getAttributeFieldName($key, $localeCode);
-            $field = str_replace($this->_advancedIndexFieldsPrefix, '', $field);
-            if ($field != $key) {
-                $data[$field] = $value;
-                unset($data[$key]);
-            }
-        }
-
-        return   $this->_getIndexer()->getProcessByCode('catalogsearch_fulltext')->_prepareIndexData();
-    }
-
-    /**
-     * Prepares query before search.
-     *
-     * @param mixed $query
-     * @return string
-     */
-    protected function _prepareSearchConditions($query)
-    {
-        return $query;
-    }
-
-    public function saveEntityIndexes()
-    {
-	return $this;
-    }	
 }

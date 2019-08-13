@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Overrides default layer view process to define custom filter blocks.
  *
@@ -22,8 +23,8 @@ class ChoiceAI_Search_Block_Catalog_Layer_View extends Mage_Catalog_Block_Layer_
      */
     protected function _construct()
     {
-    	parent::_construct();
-	    Mage::unregister('current_layer');
+        parent::_construct();
+        Mage::unregister('current_layer');
         Mage::register('current_layer', $this->getLayer());
     }
 
@@ -34,11 +35,11 @@ class ChoiceAI_Search_Block_Catalog_Layer_View extends Mage_Catalog_Block_Layer_
     {
         parent::_initBlocks();
         if (Mage::helper('choiceai_search')->isActiveEngine()) {
-            $this->_categoryBlockName        = 'choiceai_search/catalog_layer_filter_category';
+            $this->_categoryBlockName = 'choiceai_search/catalog_layer_filter_category';
             $this->_attributeFilterBlockName = 'choiceai_search/catalog_layer_filter_attribute';
-            $this->_priceFilterBlockName     = 'choiceai_search/catalog_layer_filter_price';
-            $this->_decimalFilterBlockName   = 'choiceai_search/catalog_layer_filter_decimal';
-            $this->_booleanFilterBlockName   = 'choiceai_search/catalog_layer_filter_boolean';
+            $this->_priceFilterBlockName = 'choiceai_search/catalog_layer_filter_price';
+            $this->_decimalFilterBlockName = 'choiceai_search/catalog_layer_filter_decimal';
+            $this->_booleanFilterBlockName = 'choiceai_search/catalog_layer_filter_boolean';
         }
     }
 
@@ -85,24 +86,14 @@ class ChoiceAI_Search_Block_Catalog_Layer_View extends Mage_Catalog_Block_Layer_
             }
 
             $this->getLayer()->apply();
-	        $this->getLayer()->getProductCollection()->load();
-        } else {
-	            parent::_prepareLayout();
 
-	    }
+//          Causing a request to the data server, without sort by param
+            $this->getLayer()->getProductCollection()->load();
+        } else {
+            parent::_prepareLayout();
+        }
 
         return $this;
-    }
-
-
-    public function getRequest(){
-        $controller = Mage::app()->getFrontController();
-	if ($controller) {
-            $this->_request = $controller->getRequest();
-        } else {
-            throw new Exception(Mage::helper('core')->__("Can't retrieve request object"));
-        }
-        return $this->_request;
     }
 
     /**
@@ -113,8 +104,9 @@ class ChoiceAI_Search_Block_Catalog_Layer_View extends Mage_Catalog_Block_Layer_
     public function getLayer()
     {
         if (Mage::helper('choiceai_search')->isActiveEngine()) {
-	            return Mage::getSingleton('choiceai_search/catalog_layer');
+            return Mage::getSingleton('choiceai_search/catalog_layer');
         }
+
         return parent::getLayer();
     }
 }

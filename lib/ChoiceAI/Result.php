@@ -22,8 +22,8 @@ class ChoiceAI_Result {
 
         $this->_hit = $hit;
 
-        $this->_hit["uniqueId"] = $hit["_id"];
-        $this->_hit["entity_id"] = $hit["_id"];
+        $this->_hit["uniqueId"] = $hit["pid"];
+        $this->_hit["entity_id"] = $hit["pid"];
 
         if (strpos($this->_hit["image"], 'catalog/product') !== false) {
             $this->_hit["image"] = "/" . implode("/", array_slice(explode ( "/", $this->_hit["image"]), -3, 3));
@@ -33,7 +33,7 @@ class ChoiceAI_Result {
         $this->_hit["thumbnail"] = $this->_hit["image"];
 
         $this->_hit["final_price"] = $hit["price"];
-        if(!is_null($hit["oldPrice"]) && $hit["oldPrice"] > 0) {
+        if(isset($hit["oldPrice"]) && !is_null($hit["oldPrice"]) && $hit["oldPrice"] > 0) {
             $this->_hit["price"] = $hit["oldPrice"];
         } else {
             $this->_hit["price"] = $hit["price"];
@@ -49,7 +49,7 @@ class ChoiceAI_Result {
 	 * @param string $key Key name
 	 * @return mixed Key value
 	 */
-	public function __get($key) {		
+	public function __get($key) {
 		return array_key_exists($key, $this->_hit) ? $this->_hit[$key] : null;
 	}
 	

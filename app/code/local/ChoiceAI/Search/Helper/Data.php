@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package ChoiceAI_Search
@@ -50,11 +51,11 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
     );
 
     /**
-    * Boolean field which stores choiceai active or not
-    *
-    * @var boolean
-    */
-    public $is_active = NULL;
+     * Boolean field which stores choiceai active or not
+     *
+     * @var boolean
+     */
+    public $isActive = NULL;
 
 
     const IS_ACTIVE = 'choiceai_personalisation/settings/active';
@@ -74,8 +75,10 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
             if (!isset($this->_searchableAttributes[$attribute])) {
                 return $attribute;
             }
+
             $attribute = $this->_searchableAttributes[$attribute];
         }
+
         $attributeCode = $attribute->getAttributeCode();
         $backendType = $attribute->getBackendType();
 
@@ -83,22 +86,13 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
             if (null === $localeCode) {
                 $localeCode = $this->getLocaleCode();
             }
+
 //            $languageCode = $this->getLanguageCodeByLocaleCode($localeCode);
 //            $languageSuffix = "_fq";
             //$attributeCode .= $languageSuffix;
         }
 
         return $attributeCode;
-    }
-
-    /**
-     * Returns cache lifetime in seconds.
-     *
-     * @return int
-     */
-    public function getCacheLifetime()
-    {
-        return Mage::getStoreConfig('core/cache/lifetime');
     }
 
     /**
@@ -131,7 +125,7 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getLanguageCodeByLocaleCode($localeCode)
     {
-        $localeCode = (string) $localeCode;
+        $localeCode = (string)$localeCode;
         if (!$localeCode) {
             return false;
         }
@@ -154,17 +148,6 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Returns store language code.
-     *
-     * @param mixed $store
-     * @return bool
-     */
-    public function getLanguageCodeByStore($store = null)
-    {
-        return $this->getLanguageCodeByLocaleCode($this->getLocaleCode($store));
-    }
-
-    /**
      * Returns store locale code.
      *
      * @param null $store
@@ -174,65 +157,6 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_LOCALE, $store);
     }
-
-    /**
-     * Retrieves all searchable product attributes.
-     * Possibility to filter attributes by backend type.
-     *
-     * @param array $backendType
-     * @return array
-     */
-    public function getSearchableAttributes($backendType = null)
-    {
-        if (null === $this->_searchableAttributes) {
-            $this->_searchableAttributes = array();
-            $entityType = $this->getEavConfig()->getEntityType('catalog_product');
-            $entity = $entityType->getEntity();
-
-            /* @var $productAttributeCollection Mage_Catalog_Model_Resource_Product_Attribute_Collection */
-            $productAttributeCollection = Mage::getResourceModel('catalog/product_attribute_collection')
-                ->setEntityTypeFilter($entityType->getEntityTypeId())
-                ->addVisibleFilter()
-                ->addToIndexFilter(true);
-
-            $attributes = $productAttributeCollection->getItems();
-            foreach ($attributes as $attribute) {
-                /** @var $attribute Mage_Catalog_Model_Resource_Eav_Attribute */
-                $attribute->setEntity($entity);
-                $this->_searchableAttributes[$attribute->getAttributeCode()] = $attribute;
-            }
-        }
-
-        if (null !== $backendType) {
-            $backendType = (array) $backendType;
-            $attributes = array();
-            foreach ($this->_searchableAttributes as $attribute) {
-                /** @var $attribute Mage_Catalog_Model_Resource_Eav_Attribute */
-                if (in_array($attribute->getBackendType(), $backendType)) {
-                    $attributes[$attribute->getAttributeCode()] = $attribute;
-                }
-            }
-
-            return $attributes;
-        }
-
-        return $this->_searchableAttributes;
-    }
-
-    /**
-     * Returns seach config data.
-     *
-     * @param string $field
-     * @param mixed $store
-     * @return array
-     */
-    public function getSearchConfigData($field, $store = null)
-    {
-        $path = 'catalog/search/' . $field;
-
-        return Mage::getStoreConfig($path, $store);
-    }
-
 
     /**
      * Returns searched parameter as array.
@@ -245,7 +169,8 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
     {
         if (empty($value) ||
             (isset($value['from']) && empty($value['from']) &&
-                isset($value['to']) && empty($value['to']))) {
+                isset($value['to']) && empty($value['to']))
+        ) {
             return false;
         }
 
@@ -260,6 +185,7 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
                         $val = $date->toString(Zend_Date::ISO_8601) . 'Z';
                     }
                 }
+
                 unset($val);
             } else {
                 if (!is_empty_date($value)) {
@@ -274,54 +200,6 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return array($field => $value);
-    }
-
-    /**
-     * Returns sortable attribute field name (localized if needed).
-     *
-     * @param Mage_Catalog_Model_Resource_Eav_Attribute $attribute
-     * @param string $locale
-     * @return string
-     */
-    public function getSortableAttributeFieldName($attribute, $locale = null)
-    {
-        if (is_string($attribute)) {
-            $this->getSortableAttributes(); // populate sortable attributes if not already set
-            if (!isset($this->_sortableAttributes[$attribute])) {
-                return $attribute;
-            }
-            $attribute = $this->_sortableAttributes[$attribute];
-        }
-
-        $attributeCode = $attribute->getAttributeCode();
-
-        if ($attributeCode != 'score' && !in_array($attribute->getBackendType(), $this->_unlocalizedFieldTypes)) {
-            if (null === $locale) {
-                $locale = $this->getLocaleCode();
-            }
-            $languageCode = $this->getLanguageCodeByLocaleCode($locale);
-            $languageSuffix = $languageCode ? '_' . $languageCode : '';
-            $attributeCode .= $languageSuffix;
-        }
-
-        return 'sort_by_' . $attributeCode;
-    }
-
-    /**
-     * Retrieves all sortable product attributes.
-     *
-     * @return array
-     */
-    public function getSortableAttributes()
-    {
-        if (null === $this->_sortableAttributes) {
-            $this->_sortableAttributes = Mage::getSingleton('catalog/config')->getAttributesUsedForSortBy();
-            if (array_key_exists('price', $this->_sortableAttributes)) {
-                unset($this->_sortableAttributes['price']); // Price sorting is handled with searchable attribute.
-            }
-        }
-
-        return $this->_sortableAttributes;
     }
 
     /**
@@ -346,9 +224,9 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
             // French
             'fr' => array('fr_CA', 'fr_FR'),
             // German
-            'de' => array('de_DE','de_DE','de_AT'),
+            'de' => array('de_DE', 'de_DE', 'de_AT'),
             // Italian
-            'it' => array('it_IT','it_CH'),
+            'it' => array('it_IT', 'it_CH'),
             // Norwegian
             'nb' => array('nb_NO', 'nn_NO'),
             // Portuguese
@@ -389,25 +267,15 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
      *
      * @return bool
      */
-    public function isActiveEngine() {
-
-        if(is_null($this->is_active)) {
+    public function isActiveEngine()
+    {
+        if ($this->isActive === null) {
+            $server = Mage::app()->getRequest()->getServer();
             $storeConfig = json_decode(Mage::getStoreConfig(self::CONFIG_KEY));
             $sortbyObjs = $storeConfig->sortby;
-
 //          Getting URL Path
-            $currentReqPath = explode("?", $_SERVER['REQUEST_URI'])[0];
+            $currentReqPath = explode("?", $server['REQUEST_URI'])[0];
             $currentReqPath = rtrim($currentReqPath, "/");
-
-//          Getting param keys in array var $paramPairs
-            parse_str($_SERVER['QUERY_STRING'], $paramPairs);
-//          Getting query keys
-            $currentReqParams = array();
-            if (count($paramPairs)) {
-                foreach ($paramPairs as $key => $paramPair)
-                    $currentReqParams[] = $key;
-            }
-
 //          Refining URL path
 //          My own local installation case: localhost/magento/
             if (strpos($currentReqPath, "/magento/") !== false)
@@ -416,8 +284,17 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
 //          Making www.store.com/index.php/abcd => www.store.com/abcd
             if (strpos($currentReqPath, "/index.php/") !== false)
                 $currentReqPath = str_replace("/index.php/", "/", $currentReqPath);
+            // Getting param keys in array var $paramPairs
+            parse_str($server['QUERY_STRING'], $paramPairs);
+            // Getting query keys
+            $currentReqParams = array();
+            if (!empty($paramPairs)) {
+                foreach ($paramPairs as $key => $paramPair)
+                    $currentReqParams[] = $key;
+            }
 
             $isPluginActive = Mage::getStoreConfig(self::IS_ACTIVE) == '1';
+            $choiceOptions = array();
 
             if ($isPluginActive) {
                 foreach ($sortbyObjs as $sortbyObj) {
@@ -425,7 +302,10 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
                         if (in_array($currentReqPath, $sortbyObj->rule->paths)) {
                             $choiceOptions = $this->_getOptionsAddedByChoice($sortbyObj);
 
-                            if (is_null($_REQUEST["order"]))
+                            $order = Mage::app()->getRequest()->getQuery('order');
+                            if (empty($choiceOptions))
+                                $this->isActive = true;
+                            else if (!isset($order) || $order === null)
                                 $this->_setDefaultSortOption($sortbyObj, $storeConfig);
                             break;
                         }
@@ -434,112 +314,113 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
                     if (isset($sortbyObj->rule->params)) {
                         if (!empty(array_intersect($currentReqParams, $sortbyObj->rule->params))) {
                             $choiceOptions = $this->_getOptionsAddedByChoice($sortbyObj);
-
-//
-                            if (is_null($_REQUEST["order"]))
+                            $order = Mage::app()->getRequest()->getQuery('order');
+                            if (empty($choiceOptions))
+                                $this->isActive = true;
+                            else if (!isset($order) || $order === null)
                                 $this->_setDefaultSortOption($sortbyObj, $storeConfig);
                             break;
                         }
                     }
                 }
 
-                if (count($choiceOptions) && in_array($_REQUEST["order"], $choiceOptions)) {
-                    $this->is_active = true;
+                $expId = $sortbyObj->expId;
+                if ($expId) {
+                    Mage::register('expId', $expId, true);
+                    $passback = Mage::getModel('core/cookie')->get("caiexperiment_" . $expId);
+                    if ($passback) {
+                        Mage::register('passback', $passback, true);
+                    }
+
+                    // magento sanitizes . with _ while reading from cookie
+                    $contextId = Mage::getModel('core/cookie')->get(
+                        "cai_" . str_replace(
+                            ".",
+                            "_", $currentReqPath
+                        ) . $expId
+                    );
+                    if ($contextId) {
+                        Mage::register('contextId', $contextId, true);
+                    }
+                }
+
+                $server = Mage::app()->getRequest()->getServer();
+                $device = $this->getDevice($server['HTTP_USER_AGENT']);
+                $order = Mage::app()->getRequest()->getQuery('order');
+                if (!empty($choiceOptions) && isset($order) && in_array($order, $choiceOptions)) {
+                    if (isset($sortbyObj) && isset($sortbyObj->device)) {
+                        if (in_array("all", $sortbyObj->device) || in_array($device, $sortbyObj->device))
+                            $this->isActive = true;
+                        else
+                            $this->isActive = false;
+                    } else
+                        $this->isActive = false;
                 }
             }
         }
 
-        return $this->is_active;
+        return $this->isActive;
+    }
+
+    protected function getDevice($userAgent)
+    {
+        if (stripos($userAgent, "ipad") !== false) {
+            return "desktoptablet";
+//            return "tablet";
+        } else if (stripos($userAgent, "android") !== false || stripos($userAgent, "mobile") !== false ||
+            stripos($userAgent, "iphone") !== false) {
+            return "desktoptablet";
+//            return "mobile";
+        } else
+            return 'desktop';
     }
 
     // If sort order is default, $_REQUEST["order"] will not exist
     // This adds a default value in it
-    private function _setDefaultSortOption($sortbyObj, $STORE_CONFIG){
-        if(isset($sortbyObj->extend)){
-            foreach ($sortbyObj->extend as $optionKey => $optionValue) {
-                $_REQUEST['order'] = $optionKey;
-                break;
+    // author: sumit
+    protected function _setDefaultSortOption($sortbyObj, $storeConfig)
+    {
+        if (isset($sortbyObj->extend)) {
+            if (!empty($sortbyObj->extend)) {
+                foreach ($sortbyObj->extend as $optionKey => $optionValue) {
+//                    $_REQUEST['order'] = $optionKey;
+                    Mage::app()->getRequest()->setQuery('order', $optionKey);
+                    break;
+                }
+            } else {
+                $this->isActive = true;
             }
-        } else if(isset($sortbyObj->override)) {
-            $_REQUEST["order"] = $STORE_CONFIG->default_search_sort;
-        } else if(isset($_SESSION['catalog']) && isset($_SESSION['catalog']['sort_order'])){
-//            If prod list page, use the session value
-//            This case although seems useless
-            $_REQUEST["order"] = $_SESSION['catalog']['sort_order'];
+        } else if (isset($sortbyObj->override) && $storeConfig->default_search_sort) {
+            Mage::app()->getRequest()->setQuery('order', $storeConfig->default_search_sort);
+        } else if (!isset($sortbyObj->override) && !isset($sortbyObj->extend)) {
+            Mage::app()->getRequest()->setQuery('order', "takeover_mode");
         }
+
+//        } else if(isset($_SESSION['catalog']) && isset($_SESSION['catalog']['sort_order'])){
+//            // If prod list page, use the session value
+//            // This case although seems useless
+//            $_REQUEST["order"] = $_SESSION['catalog']['sort_order'];
+//        }
     }
 
     /**
      * @param $sortbyObj
      * @return array
      */
-    private function _getOptionsAddedByChoice($sortbyObj){
+    protected function _getOptionsAddedByChoice($sortbyObj)
+    {
         $options = array();
 
-        if(isset($sortbyObj->override)){
+        if (isset($sortbyObj->override)) {
             // Search case, override all system options with choice
-            $caiOptions = $sortbyObj->override;
-
-            foreach ($caiOptions as $key => $caiOption)
+            foreach ($sortbyObj->override as $key => $caiOption)
                 $options[] = $key;
-        } elseif(isset($sortbyObj->extend)) {
-            foreach ($sortbyObj->extend as $key=>$option)
+        } elseif (isset($sortbyObj->extend)) {
+            foreach ($sortbyObj->extend as $key => $option)
                 $options[] = $key;
         }
 
         return $options;
-    }
-
-    /**
-     * Checks whether request is a navigation
-     *
-     * @param Mage_Catalog_Model_Resource_Eav_Attribute $attribute
-     * @return bool
-     */
-    public function isNavigation() {
-        if($this->_getRequest()->getControllerName() == "category") {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether request is a resultPage
-     *
-     * @param Mage_Catalog_Model_Resource_Eav_Attribute $attribute
-     * @return bool
-     */
-    public function isSearch() {
-        if($this->_getRequest()->getControllerName() == "result") {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks if specified attribute is indexable by search engine.
-     *
-     * @param Mage_Catalog_Model_Resource_Eav_Attribute $attribute
-     * @return bool
-     */
-    public function isAttributeIndexable($attribute)
-    {
-        if ($attribute->getBackendType() == 'varchar' && !$attribute->getBackendModel()) {
-            return true;
-        }
-
-        if ($attribute->getBackendType() == 'int'
-            && $attribute->getSourceModel() != 'eav/entity_attribute_source_boolean'
-            && ($attribute->getIsSearchable() || $attribute->getIsFilterable() || $attribute->getIsFilterableInSearch())
-        ) {
-            return true;
-        }
-
-        if ($attribute->getIsSearchable() || $attribute->getIsFilterable() || $attribute->getIsFilterableInSearch()) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -555,116 +436,15 @@ class ChoiceAI_Search_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Method that can be overriden for customing product data indexation.
-     *
-     * @param array $index
-     * @param string $separator
-     * @return array
-     */
-    public function prepareIndexData($index, $separator = null)
-    {
-        return $index;
-    }
-
-    /**
      * Forces error display.
+     * Used in Abstract.php model's search function
      *
      * @param string $error
      */
     public function showError($error)
     {
-        echo Mage::app()->getLayout()->createBlock('core/messages')
-            ->addError($error)->getGroupedHtml();
+//        echo Mage::app()->getLayout()->createBlock('core/messages')
+//            ->addError($error)->getGroupedHtml();
     }
 
-    /*
-    * returns the choiceai site name
-    *
-    * @return String
-    */
-    public function getSiteName(){
-        $siteKeyLabel = ChoiceAI_Searchcore_Helper_Constants::SITE_KEY;
-        $config = $this->getEngineConfigData($siteKeyLabel);
-        if(array_key_exists($siteKeyLabel, $config) && $config[$siteKeyLabel] != "")
-            return $config[$siteKeyLabel];
-        else {
-            $siteKey = Mage::getResourceModel('choiceai_searchcore/config')
-                ->getValue(Mage::app()->getWebsite()->getWebsiteId(),
-                    $siteKeyLabel);
-            if(isset($siteKey) && $siteKey != ''){
-                Mage::helper('choiceai_searchcore')->saveConfig(Mage::app()->getWebsite(),
-                    array($siteKeyLabel => $siteKey));
-                return $siteKey;
-            } else {
-                if(Mage::getIsDeveloperMode()) {
-                    Mage::throwException("ChoiceAI site key is empty");
-                } else {
-                    Mage::helper('choiceai_searchcore')->log(Zend_Log::ERR, 'ChoiceAI site key is not set');
-                    return null;
-                }
-            }
-        }
-    }
-
-    /*
-    * returns the choiceai api Key
-    *
-    * @return String
-    */
-    public function getApiKey(){
-        $apiKeyLabel = ChoiceAI_Searchcore_Helper_Constants::API_KEY;
-        $config = $this->getEngineConfigData($apiKeyLabel);
-        if(array_key_exists($apiKeyLabel, $config) && $config[$apiKeyLabel] != "")
-            return $config[$apiKeyLabel];
-        else {
-            $apiKey = Mage::getResourceModel('choiceai_searchcore/config')
-                ->getValue(Mage::app()->getWebsite()->getWebsiteId(), $apiKeyLabel);
-            if(isset($apiKey) && $apiKey != ''){
-                Mage::helper('choiceai_searchcore')->saveConfig(Mage::app()->getWebsite(),
-                    array($apiKeyLabel => $apiKey));
-                return $apiKey;
-            } else {
-                if(Mage::getIsDeveloperMode()) {
-                    Mage::throwException("ChoiceAI api key is empty");
-                } else {
-                    Mage::helper('choiceai_searchcore')->log(Zend_Log::ERR, 'ChoiceAI Api key is not set');
-                    return null;
-                }
-            }
-        }
-    }
-
-    /**
-     * This method checks whether hosted search is active or not
-     * @return boolean
-     */
-    public function isHostedSearchActive()
-    {
-        $siteKey = null;
-        $apiKey = null;
-        try {
-            $siteKey = $this->getSiteName();
-            $apiKey = $this->getApiKey();
-        } catch(Exception $e) {
-            //ignoring the exception
-        }
-        $searchConf = $this->getEngineConfigData('search');
-        $hostedSearchConf = Mage::helper('choiceai_searchcore')->isConfigTrue(Mage::app()->getWebsite(),ChoiceAI_Searchcore_Helper_Constants::SEARCH_HOSTED_STATUS);
-        $searchModConf = Mage::helper('choiceai_searchcore')->isConfigTrue(Mage::app()->getWebsite(), ChoiceAI_Searchcore_Helper_Constants::SEARCH_MOD_STATUS);
-        $hostedIntStatus = $searchConf[ChoiceAI_Searchcore_Helper_Constants::SEARCH_HOSTED_INT_STATUS];
-        $hostedSearchRedirectUrl = $searchConf[ChoiceAI_Searchcore_Helper_Constants::SEARCH_HOSTED_REDIRECT_URL];
-        return !is_null($siteKey) && !is_null($apiKey) &&
-        $hostedSearchConf && !$searchModConf &&
-        $hostedIntStatus == ChoiceAI_Searchcore_Helper_Constants::SEARCH_HOSTED_INT_COMPLETE &&
-            sizeof($hostedSearchRedirectUrl) > 0;
-    }
-
-    /**
-     * Method to get the hosted redirection url
-     * @return mixed
-     */
-    public function getHostedRedirectUrl() {
-        $config = $this->getEngineConfigData(ChoiceAI_Searchcore_Helper_Constants::SEARCH_HOSTED_REDIRECT_URL);
-        return $config[ChoiceAI_Searchcore_Helper_Constants::SEARCH_HOSTED_REDIRECT_URL];
-    }
- }
+}

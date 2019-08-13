@@ -21,6 +21,24 @@
         </reference>
     </checkout_cart_index>
 
+    <catalog_category_default>
+        <reference name="before_body_end">
+            <block type="choiceai_personalisation/event_analytics_listpage" name="choiceai_personalisation_event_analytics_listpage" />
+        </reference>
+    </catalog_category_default>
+
+    <catalog_category_layered>
+        <reference name="before_body_end">
+            <block type="choiceai_personalisation/event_analytics_listpage" name="choiceai_personalisation_event_analytics_listpage" />
+        </reference>
+    </catalog_category_layered>
+
+    <catalogsearch_result_index>
+        <reference name="before_body_end">
+            <block type="choiceai_personalisation/event_analytics_search" name="choiceai_personalisation_event_analytics_search" />
+        </reference>
+    </catalogsearch_result_index>
+
     <!-- <checkout_onepage_success>
         <reference name="head">
                 <block type="choiceai_personalisation/event_checkout_onepage_success" name="choiceai_personalisation_event_checkout_onepage_success" />
@@ -33,6 +51,9 @@
         </reference>
         <reference name="head">
             <block type="choiceai_personalisation/event_checkout_onepage_success" name="choiceai_personalisation_event_checkout_onepage_success" />
+        </reference>
+        <reference name="before_body_end">
+            <block type="choiceai_personalisation/searchpage_addparam" name="choiceai_personalisation_searchpage_addparam" />
         </reference>
     </default>
 

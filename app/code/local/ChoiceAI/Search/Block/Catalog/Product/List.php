@@ -46,6 +46,7 @@ class ChoiceAI_Search_Block_Catalog_Product_List extends Mage_Catalog_Block_Prod
         if ($helper->isActiveEngine()) {
             return Mage::getSingleton('choiceai_search/catalogsearch_layer');
         }
+
         return parent::getLayer();
     }
 
