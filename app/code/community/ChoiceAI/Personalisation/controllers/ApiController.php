@@ -10,6 +10,8 @@
 class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_Action {
 
     const CONFIG_API_KEY = 'choiceai_personalisation/settings/api_key';
+    const CONFIG_KEY = 'choiceai_personalisation/settings/config';
+    const API_VERSION = 3;
 
     public function _authorise() {
 
@@ -19,7 +21,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
         if(!$API_KEY && strlen($API_KEY) === 0) {
             // Api access disabled
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'API access disabled', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'API access disabled', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(403)
                 ->setHeader('Content-type', 'application/json', true);
             return false;
@@ -36,7 +38,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
             Mage::log('Unable to extract authorization header from request', null, 'choiceai.log');
             // Internal server error
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error, Authorization header not found', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error, Authorization header not found', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(500)
                 ->setHeader('Content-type', 'application/json', true);
             return false;
@@ -45,13 +47,63 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
         if(trim($authHeader) !== trim($API_KEY)) {
             // Api access denied
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'Api access denied', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Api access denied', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(401)
                 ->setHeader('Content-type', 'application/json', true);
             return false;
         }
 
         return true;
+
+    }
+
+    public function configAction() {
+
+        try {
+
+           if(!$this->_authorise()) {
+               return $this;
+           }
+
+            $responseObj = array();
+
+            if ($_SERVER["REQUEST_METHOD"] == "GET") {
+                $STORE_CONFIG = Mage::getStoreConfig(self::CONFIG_KEY);
+                $responseObj["status"] = "ok";
+                $responseObj["config"] = json_decode($STORE_CONFIG);
+            } else if ($_SERVER["REQUEST_METHOD"] == "PUT") {
+                $store_config = $this->getRequest()->getParam('config');
+                if($store_config ==""){
+                    $input = file_get_contents('php://input');
+                    $input = utf8_encode($input);
+                    $store_config = json_encode(json_decode($input)->config);
+                }
+                $store_config_json = json_decode($store_config);
+                if ($store_config_json == NULL) {
+                    throw new Exception();
+                }
+                Mage::getModel('core/config')->saveConfig(self::CONFIG_KEY, $store_config);
+                Mage::app()->getStore()->resetConfig();
+                $responseObj["status"] = "ok";
+            } else {
+                $responseObj['status'] = 'error';
+                $responseObj['message'] = 'Invalid request';
+            }
+
+            $responseObj['version'] = self::API_VERSION;
+            $this->getResponse()
+                ->setBody(json_encode($responseObj))
+                ->setHttpResponseCode(200)
+                ->setHeader('Content-type', 'application/json', true);
+
+        } catch(Exception $e) {
+            $this->getResponse()
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
+                ->setHttpResponseCode(500)
+                ->setHeader('Content-type', 'application/json', true);
+        }
+
+        return this;
 
     }
 
@@ -109,7 +161,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                     }
                 }
 
-                $responseObj['version'] = 2;
+                $responseObj['version'] = self::API_VERSION;
                 $this->getResponse()
                     ->setBody(json_encode($responseObj))
                     ->setHttpResponseCode(200)
@@ -141,7 +193,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                 }
 
                 $this->getResponse()
-                    ->setBody(json_encode(array('orders' => $orders, 'fromDate' => $fromDate, 'toDate' => $toDate, 'version' => 2)))
+                    ->setBody(json_encode(array('orders' => $orders, 'fromDate' => $fromDate, 'toDate' => $toDate, 'version' => self::API_VERSION)))
                     ->setHttpResponseCode(200)
                     ->setHeader('Content-type', 'application/json', true);
 
@@ -149,12 +201,112 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
 
         } catch(Exception $e) {
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(500)
                 ->setHeader('Content-type', 'application/json', true);
         }
 
         return this;
+
+    }
+
+    public function productattributesAction() {
+
+        try {
+
+            if(!$this->_authorise()) {
+                return $this;
+            }
+
+            $sections = explode('/', trim($this->getRequest()->getPathInfo(), '/'));
+
+            if(!isset($sections[3])) {
+
+                throw new Exception();
+
+            }
+
+            $productId = $sections[3];
+
+            $product = Mage::getModel('catalog/product')->load($productId);
+
+            $product_info = array();
+
+            $product_info["is_available"] = $product->isAvailable();
+            $product_info["name"] = $product->getName();
+            $product_info["id"] = $product->getId();
+            $product_info["sku"] = $product->getSku();
+            $product_info["price"] = $product->getPrice();
+            $product_info["final_price"] = $product->getFinalPrice();
+            $product_info["special_price"] = $product->getSpecialPrice();
+            $product_info["type"] = $product->getTypeId();
+
+            $variants = array();
+            $options = array();
+
+            if ($product->getTypeId() == "configurable") {
+
+                $productAttributeOptions = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+                $attributeTypes = array();
+
+                foreach ($productAttributeOptions as $productAttribute) {
+
+                    $attributes = array();
+                    foreach ($productAttribute['values'] as $attribute) {
+                        $attributes[] = array(
+                            "id" => $attribute["value_index"],
+                            "name" => $attribute["store_label"]
+                        );
+                    }
+
+                    $attributeType = $productAttribute["attribute_code"];
+                    $options[] = array(
+                        "id" => $productAttribute["id"],
+                        "key" => $attributeType,
+                        "name" => $productAttribute["store_label"],
+                        "values" => $attributes,
+                        "position" => $productAttribute["position"]
+                    );
+
+                    $attributeTypes[] = $attributeType;
+
+                }
+
+                $associatedProducts = $product->getTypeInstance()->getUsedProducts();
+                foreach ($associatedProducts as $associatedProduct) {
+
+                    $variant = array();
+                    $variant["is_available"] = $associatedProduct->isAvailable();
+                    $variant["id"] = $associatedProduct->getId();
+                    $variant["sku"] = $associatedProduct->getSku();
+                    $variant["price"] = $associatedProduct->getPrice();
+                    $variant["final_price"] = $associatedProduct->getFinalPrice();
+                    $variant["special_price"] = $associatedProduct->getSpecialPrice();
+
+                    $associatedProductData = $associatedProduct->getData();
+                    foreach ($attributeTypes as $attributeType) {
+                        $variant[$attributeType] = $associatedProductData[$attributeType];
+                    }
+
+                    $variants[] = $variant;
+
+                }
+
+            }
+
+            $this->getResponse()
+                ->setBody(json_encode(array('product' => $product_info, 'variants' => $variants, 'options' => $options, 'version' => self::API_VERSION)))
+                ->setHttpResponseCode(200)
+                ->setHeader('Content-type', 'application/json', true);
+
+        } catch(Exception $e) {
+            $this->getResponse()
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
+                ->setHttpResponseCode(500)
+                ->setHeader('Content-type', 'application/json', true);
+        }
+
+        return $this;
 
     }
 
@@ -225,14 +377,14 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
             $currency = Mage::app()->getStore()->getCurrentCurrencyCode();
 
             $this->getResponse()
-                ->setBody(json_encode(array('products' => $products, 'currency' => $currency, 'version' => 2)))
+                ->setBody(json_encode(array('products' => $products, 'currency' => $currency, 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(200)
                 ->setHeader('Content-type', 'application/json', true);
 
 
         } catch(Exception $e) {
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(500)
                 ->setHeader('Content-type', 'application/json', true);
         }
@@ -318,14 +470,14 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
             }
 
             $this->getResponse()
-                ->setBody(json_encode(array('categories' => $categories, 'version' => 2)))
+                ->setBody(json_encode(array('categories' => $categories, 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(200)
                 ->setHeader('Content-type', 'application/json', true);
 
 
         } catch(Exception $e) {
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(500)
                 ->setHeader('Content-type', 'application/json', true);
         }
@@ -398,13 +550,13 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
 
 
             $this->getResponse()
-                ->setBody(json_encode(array('users' => $users, 'version' => 2)))
+                ->setBody(json_encode(array('users' => $users, 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(200)
                 ->setHeader('Content-type', 'application/json', true);
 
         } catch(Exception $e) {
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(500)
                 ->setHeader('Content-type', 'application/json', true);
         }
@@ -429,7 +581,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
             if(!$productId || strlen($productId) <= 0) {
 
                 $this->getResponse()
-                    ->setBody(json_encode(array('status' => 'error', 'message' => 'product id required', 'version' => 2)))
+                    ->setBody(json_encode(array('status' => 'error', 'message' => 'product id required', 'version' => self::API_VERSION)))
                     ->setHttpResponseCode(500)
                     ->setHeader('Content-type', 'application/json', true);
 
@@ -440,7 +592,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                     $product = Mage::getModel('catalog/product')->loadByAttribute('sku', $productId);
                     if($product == null) {
                         $this->getResponse()
-                            ->setBody(json_encode(array('status' => 'error', 'message' => 'invalid sku', 'version' => 2)))
+                            ->setBody(json_encode(array('status' => 'error', 'message' => 'invalid sku', 'version' => self::API_VERSION)))
                             ->setHttpResponseCode(500)
                             ->setHeader('Content-type', 'application/json', true);
                         return $this;
@@ -454,7 +606,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
                 $stock = $stockObj->getQty();
 
                 $this->getResponse()
-                    ->setBody(json_encode(array('id' => $productId, 'stock' => $stock, 'version' => 2)))
+                    ->setBody(json_encode(array('id' => $productId, 'stock' => $stock, 'version' => self::API_VERSION)))
                     ->setHttpResponseCode(200)
                     ->setHeader('Content-type', 'application/json', true);
 
@@ -462,7 +614,7 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
 
         } catch(Exception $e) {
             $this->getResponse()
-                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => 2)))
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
                 ->setHttpResponseCode(500)
                 ->setHeader('Content-type', 'application/json', true);
         }
@@ -561,6 +713,58 @@ class ChoiceAI_Personalisation_ApiController extends Mage_Core_Controller_Front_
 
         return $formattedCategory;
 
+    }
+
+    public function sortbyAction() {
+
+        try {
+
+           if(!$this->_authorise()) {
+               return $this;
+           }
+
+            $sortByOptions = array();
+//            $attributesData = Mage::getResourceModel('catalog/config')->getAttributesUsedForSortBy();
+
+//            foreach ($attributesData as $attributeData) {
+//                $sortByOptions[$attributeData['attribute_code']] = array(
+//                    "attribute_id"=> $attributeData['attribute_id'],
+//                    "attribute_code"=> $attributeData['attribute_code'],
+//                    "frontend_label"=> $attributeData['frontend_label'],
+//                    "store_label"=> $attributeData['store_label']
+//                );
+//            }
+
+            $category = Mage::getModel('catalog/category');
+
+            $attributesData = $category->getAvailableSortByOptions();
+            $defaultSort = $category->getDefaultSortBy();
+
+            $i = 1;
+
+            foreach ($attributesData as $key => $attributeData) {
+                $sortByOptions[] = array(
+                    "_id"=> $key,
+                    "name"=> $attributeData,
+                    "default"=> $key==$defaultSort ? true:false,
+                    "order"=> $i
+                );
+                $i++;
+            }
+
+            $this->getResponse()
+                ->setBody(json_encode(array('status' => "ok", 'options' => $sortByOptions, 'version' => self::API_VERSION)))
+                ->setHttpResponseCode(200)
+                ->setHeader('Content-type', 'application/json', true);
+
+        } catch(Exception $e) {
+            $this->getResponse()
+                ->setBody(json_encode(array('status' => 'error', 'message' => 'Internal server error', 'version' => self::API_VERSION)))
+                ->setHttpResponseCode(500)
+                ->setHeader('Content-type', 'application/json', true);
+        }
+
+        return $this;
     }
 
 }

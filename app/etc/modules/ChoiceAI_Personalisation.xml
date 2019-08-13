@@ -6,5 +6,13 @@
             <active>true</active>
             <codePool>community</codePool>
         </ChoiceAI_Personalisation>
+        <ChoiceAI_Searchcore>
+            <active>true</active>
+            <codePool>local</codePool>
+        </ChoiceAI_Searchcore>
+        <ChoiceAI_Search>
+            <active>true</active>
+            <codePool>local</codePool>
+        </ChoiceAI_Search>
     </modules>
 </config>
