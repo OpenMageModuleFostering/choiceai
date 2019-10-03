@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/choiceai",
+    "name": "OpenMageModuleFostering\/choiceai",
     "type": "magento-module",
     "license": "osl",
     "homepage": "",
     "description": "Choice AI",
     "authors": [
-    {
-        "name": "MineWhat Inc.",
-        "email": "info@minewhat.com"
-    }
-],
+        {
+            "name": "MineWhat Inc.",
+            "email": "info@minewhat.com"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
