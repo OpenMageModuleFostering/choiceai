@@ -1,7 +1,7 @@
 {
-    "name": "OpenMageModuleFostering\/choiceai",
+    "name": "openmage-module-fostering\/choiceai",
     "type": "magento-module",
-    "license": "osl",
+    "license": "OSL-3.0",
     "homepage": "",
     "description": "Choice AI",
     "authors": [
